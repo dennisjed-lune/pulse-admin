@@ -1,0 +1,1339 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pulse Admin</title>
+<link rel="icon" href="data:,">
+<!-- LUNE-UI-CSS -->
+<!-- LUNE-PROTO-CSS -->
+<style>
+/* Pulse Admin: the Lune operations admin portal that our Mastercard RFP answers commit to. Tokens only, light theme. */
+.tg { display: inline-flex; align-items: center; width: fit-content; white-space: nowrap; border-radius: 9999px; border: 1px solid; padding: .0625rem .5rem; font-size: .6875rem; line-height: 1rem; font-weight: 600; }
+.tg.ok { background: var(--success-minimal); color: var(--color-success-800); border-color: var(--success-subtle); } .tg.info { background: var(--secondary); color: var(--secondary-foreground); border-color: transparent; }
+.tg.warn { background: var(--warning-minimal); color: var(--color-warning-800); border-color: var(--warning-subtle); } .tg.bad { background: var(--error-minimal); color: var(--color-error-800); border-color: var(--error-subtle); } .tg.out { background: transparent; color: var(--muted-foreground); border-color: var(--border); }
+.tags { display: flex; gap: .375rem; flex-wrap: wrap; align-items: center; }
+.tab[role="radio"][aria-checked="true"] { background: var(--background); color: var(--foreground); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; }
+.split { display: grid; grid-template-columns: minmax(0,1fr) 21rem; gap: 1rem; align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.hrow { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.sp { flex: 1; }
+.muted { color: var(--muted-foreground); }
+.sm { font-size: .75rem; line-height: 1rem; }
+.b { font-weight: 600; }
+.kv { display: grid; grid-template-columns: 9.5rem minmax(0,1fr); gap: .375rem .75rem; font-size: .875rem; }
+.kv dt { color: var(--muted-foreground); } .kv dd { margin: 0; font-weight: 600; }
+.chips { display: flex; gap: .375rem; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: .375rem; height: 2rem; padding: 0 .75rem; border: 1px solid var(--border); border-radius: 9999px; background: var(--background); font: inherit; font-size: .8125rem; font-weight: 500; cursor: pointer; color: var(--foreground); }
+.chip b { font-weight: 700; } .chip[aria-pressed="true"] { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--background)); color: var(--primary); }
+.flow { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; font-size: .75rem; font-weight: 600; }
+.flow span { padding: .25rem .625rem; border-radius: 9999px; background: var(--muted); color: var(--muted-foreground); }
+.flow span.on { background: var(--primary); color: var(--primary-foreground); } .flow span.done { background: var(--success-minimal); color: var(--color-success-800); }
+.flow i { width: .75rem; height: 1px; background: var(--border); }
+.rule { display: grid; grid-template-columns: 7rem minmax(0,1fr) 2.25rem; gap: .5rem; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem .75rem; background: var(--background); }
+.rule .k { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.rb { border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; background: var(--background); display: flex; flex-direction: column; gap: 1rem; }
+.rb-h { display: flex; align-items: center; gap: .5rem; }
+.rb-g { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem .75rem; }
+.rb-g2 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem .75rem; align-items: end; }
+.rb-h .ib { flex: none; min-width: 2.25rem; }
+.rb select, .rb input { width: 100%; min-width: 0; }
+.rb .k { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.rb-s { font-size: .8125rem; color: var(--muted-foreground); font-weight: 500; }
+.rb-sec { display: flex; flex-direction: column; gap: .5rem; }
+.rb-sec > p.b { font-size: .8125rem; }
+.rb label { font-size: .75rem; }
+@media (max-width: 900px) { .rb-g, .rb-g2 { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+.k.inc { color: var(--color-success-800); } .k.exc { color: var(--color-error-800); } .k.sup { color: var(--color-warning-800); }
+.prio { display: grid; grid-template-columns: 2rem minmax(0,1fr) auto auto; gap: .5rem; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem .75rem; }
+.prio.me { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--background)); }
+.prio .n { width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: var(--muted); display: grid; place-items: center; font-size: .75rem; font-weight: 700; }
+.ib { width: 2rem; height: 2rem; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px); background: var(--background); display: grid; place-items: center; cursor: pointer; color: var(--foreground); }
+.ib svg { width: 1rem; height: 1rem; } .ib:disabled { opacity: .4; cursor: not-allowed; }
+.btn:disabled { opacity: .45; cursor: not-allowed; } .btn:disabled:hover { background: var(--background); } .btn.ghost:disabled:hover { background: transparent; }
+.meter { height: .5rem; border-radius: 9999px; background: var(--muted); overflow: hidden; min-width: 6rem; }
+.meter i { display: block; height: 100%; background: var(--chart-1); border-radius: 9999px; }
+.meter i.w { background: var(--warning); }
+.dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 9999px; background: var(--success); margin-right: .375rem; }
+.dot.w { background: var(--warning); } .dot.b { background: var(--error); }
+.role { display: inline-flex; padding: 2px; border-radius: var(--radius); background: var(--muted); gap: 2px; }
+.role button { border: 0; background: transparent; border-radius: calc(var(--radius) - 2px); height: 2rem; padding: 0 .75rem; font: inherit; font-size: .8125rem; font-weight: 600; color: var(--muted-foreground); cursor: pointer; }
+.role button[aria-pressed="true"] { background: var(--background); color: var(--foreground); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.topbar { display: flex; align-items: center; gap: .75rem; justify-content: flex-end; flex-wrap: wrap; padding: .625rem 1.5rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.ro { display: flex; align-items: center; gap: .5rem; padding: .625rem .875rem; border-radius: var(--radius); background: var(--secondary); color: var(--secondary-foreground); font-size: .8125rem; font-weight: 500; }
+.phone { width: 17rem; margin: 0 auto; border: 8px solid var(--color-gray-1000, #1c1c1c); border-radius: 2.25rem; overflow: hidden; background: var(--background); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.phone .cover { height: 8rem; background: linear-gradient(135deg, #0a634d, #10a37f); position: relative; }
+.phone .logo { position: absolute; left: 1rem; bottom: -1.25rem; width: 2.75rem; height: 2.75rem; border-radius: 9999px; background: #fff; border: 1px solid var(--border); display: grid; place-items: center; font-weight: 800; color: #0a634d; font-size: .8125rem; }
+.phone .pb { padding: 1.75rem 1rem 1rem; display: flex; flex-direction: column; gap: .625rem; }
+.phone h4 { font-size: 1rem; font-weight: 700; line-height: 1.25rem; }
+.phone .big { font-size: 1.5rem; font-weight: 800; color: #0a634d; }
+.phone ol { padding-left: 1rem; list-style: decimal; font-size: .75rem; display: flex; flex-direction: column; gap: .25rem; }
+.phone .cta { height: 2.5rem; border-radius: 9999px; background: #0a634d; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .875rem; }
+.textarea { min-height: 5rem; padding: .5rem .75rem; height: auto; resize: vertical; }
+.tbl td .btn { height: 2rem; padding: 0 .75rem; }
+.tbl tr.sel td { background: color-mix(in srgb, var(--primary) 5%, transparent); }
+.tbl td .hrow { flex-wrap: nowrap; gap: .25rem; } .tbl td.num, .tbl td b { white-space: nowrap; }
+.lnk { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--primary); cursor: pointer; text-align: left; }
+.lnk:hover { text-decoration: underline; }
+.sw { position: relative; flex: none; width: 2.25rem; height: 1.25rem; border-radius: 9999px; border: 1px solid var(--border); background: var(--muted); padding: 0; cursor: pointer; }
+.sw i { position: absolute; top: 1px; left: 1px; width: 1rem; height: 1rem; border-radius: 9999px; background: var(--background); box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: left .15s; }
+.sw[aria-checked="true"] { background: var(--primary); border-color: var(--primary); } .sw[aria-checked="true"] i { left: calc(100% - 1rem - 1px); }
+.mod { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border: 1px solid var(--border); border-radius: var(--radius); padding: .625rem .75rem; background: var(--background); font-size: .875rem; font-weight: 600; }
+.mod.off { opacity: .6; }
+.tchk { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; }
+.tck { display: flex; align-items: flex-start; gap: .625rem; min-height: 2.75rem; border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem .75rem; background: var(--background); cursor: pointer; font-size: .875rem; }
+.tck input { width: 1rem; height: 1rem; margin-top: .125rem; accent-color: var(--primary); flex: none; }
+.tck small { display: block; color: var(--muted-foreground); font-size: .75rem; font-weight: 500; }
+.tck:has(input:checked) { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--background)); }
+.tck:has(input:disabled) { opacity: .6; cursor: not-allowed; }
+fieldset.fg { border: 0; padding: 0; margin: 0; min-width: 0; } fieldset.fg legend { padding: 0; margin-bottom: .375rem; }
+.tbl td.wrap { white-space: normal; min-width: 10rem; }
+.fg { align-content: start; }
+.tbl.pool th, .tbl.pool td { padding-left: .5rem; padding-right: .5rem; } .tbl.pool td:first-child { min-width: 10rem; width: 11.5rem; } .tbl.pool td:first-child b { white-space: normal; } .tbl.pool td.wrap { min-width: 9rem; }
+@media (max-width: 1100px) { .split { grid-template-columns: minmax(0,1fr); } .row3 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 1100px) { .tchk { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 640px) { .row2, .row3 { grid-template-columns: minmax(0,1fr); } .kv { grid-template-columns: minmax(0,1fr); } .topbar { padding: .625rem 1rem; } }
+</style>
+
+<div class="app"><nav class="sb" id="side" aria-label="Pulse Admin"></nav><div class="main"><div class="topbar" id="top"></div><div id="main" style="display:flex;flex-direction:column;flex:1"></div></div></div>
+<div id="sheet-host"></div>
+<div id="toast-host"></div>
+<script>
+(function () {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const svg = p => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+const LOGO = /*LUNE-LOGO*/'';
+const I = {
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  tag: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  store: '<path d="M3 9 4.5 4h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/>',
+  pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14a6.5 6.5 0 0 1 3.5 6"/>',
+  chart: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  up: '<path d="m18 15-6-6-6 6"/>', down: '<path d="m6 9 6 6 6-6"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>', eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  layers: '<path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/>',
+  pct: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  gift: '<rect x="3" y="7.5" width="18" height="4" rx="1"/><path d="M5 11.5V21h14v-9.5"/><path d="M12 7.5V21"/><path d="M12 7.5S9.4 7.5 8.4 6.6a2 2 0 1 1 3.3-2.1c.6 1 .3 3 .3 3z"/><path d="M12 7.5s2.6 0 3.6-.9a2 2 0 1 0-3.3-2.1c-.6 1-.3 3-.3 3z"/>'
+};
+
+/* ---------- Labels from OUR answers (window.RFP_REQS). Same logic as src/lunehub/ext.js tagText / tagX. ---------- */
+const P = () => true;
+const stat = c => (!c ? 'none' : /^Fully/.test(c) ? 'full' : /^Partial/.test(c) ? 'partial' : /^Not/.test(c) ? 'not' : 'none');
+const tagText = (rows, part) => {
+  const R = window.RFP_REQS || {}, ids = String(rows || '').split(/\s+/).filter(Boolean);
+  if (!ids.length) return ['Available today', 'info'];
+  const st = new Set(ids.map(i => stat((R[i] || {}).c)));
+  if (st.has('none')) return ['No answer yet', 'out'];
+  if (st.size === 1 && st.has('not')) return ['Not Compliant', 'bad'];
+  if (part === 'plan') {
+    if (st.size === 1 && st.has('full')) return ['Fully Compliant', 'ok'];
+    if (st.has('full')) return ['Answers conflict', 'bad'];
+    return ['Partially Compliant', 'info'];
+  }
+  if (st.has('not')) return ['Answers conflict', 'bad'];
+  return st.has('partial') ? ['Partially Compliant · available today', 'info'] : ['Fully Compliant', 'ok'];
+};
+const tagX = (rows, part) => { const [t, k] = tagText(rows, part); return '<span class="tg ' + k + '" data-req="' + rows + '">' + t + '</span>'; };
+const tagB = rows => tagX(rows, 'today');
+const tagP = rows => tagX(rows, 'plan');
+/* Rows that disagree (one Fully Compliant, another one Partially or Not Compliant): show "Answers conflict" in both modes. */
+const tagC = rows => (tagText(rows, 'plan')[0] === 'Answers conflict' ? tagX(rows, 'plan') : tagB(rows));
+
+/* ---------- Sample data (Nova Bank, UAE; same merchants and campaigns as the LuneHub demo) ---------- */
+const BANKS = [
+  { id: 'nova', tid: 'nova-bank-ae', name: 'Nova Bank', prog: 'Nova Rewards', live: 14, enrolled: 412880, intake: ['ok', 'Received 04:55'], run: ['ok', 'Completed 06:12'], matched: 92.4, alerts: 0 },
+  { id: 'gulf', tid: 'gulf-demo-bank-ae', name: 'Gulf Demo Bank', prog: 'Gulf Cashback', live: 9, enrolled: 268104, intake: ['w', 'Late, received 05:52'], run: ['ok', 'Completed 06:40'], matched: 90.8, alerts: 1 },
+  { id: 'oasis', tid: 'oasis-bank-ae', name: 'Oasis Bank', prog: 'Oasis Offers', live: 5, enrolled: 97350, intake: ['ok', 'Received 05:01'], run: ['w', 'Retry 1 of 3 running'], matched: 88.1, alerts: 2 }
+];
+const TID = n => (BANKS.find(b => b.name === n) || {}).tid || '';
+/* Campaign requests: the real Pulse Admin list (statuses as in the product). Offer fields are filled once Lune operations creates the offer. */
+const REQS = [
+  { id: 'CR-1044', m: 'Lulu', brand: 'Lulu Hypermarket', t: 'Lulu · Hypermarket Saver', goal: 'Increase transaction frequency', budget: 200000, st: 'Under review', sub: '08 Nov 2026', bank: '', mbud: 60000, atv: 185, orders: 410000, mids: ['4029113', '4029114', '4029115'], tids: ['T-88101', 'T-88102', 'T-88103'], chan: 'In store', cb: 7, cap: 75, min: 150, refund: 30, mode: 'Fixed Duration', from: '2026-12-01', to: '2027-03-31' },
+  { id: 'CR-1045', m: 'Expedia', brand: 'Expedia', t: 'Expedia · Winter Travel', goal: 'Acquire new customers', budget: 300000, st: 'Pending review', sub: '09 Nov 2026', bank: '', mbud: 100000, atv: 1450, orders: 22000, mids: ['5530021'], tids: ['ONLINE-01'], chan: 'Online' },
+  { id: 'CR-1043', m: 'Starbucks', brand: 'Starbucks', t: 'Starbucks · Weekend Treat', goal: 'Grow average spend', budget: 90000, st: 'Pending review', sub: '09 Nov 2026', bank: '', mbud: 30000, atv: 34, orders: 260000, mids: ['4410071', '4410072'], tids: ['T-11201', 'T-11202'], chan: 'In store' },
+  { id: 'CR-1041', m: 'Carrefour', brand: 'Carrefour', t: 'Carrefour · Weekly Groceries', goal: 'Increase transaction frequency', budget: 180000, st: 'In bank review', sub: '04 Nov 2026', bank: 'Gulf Demo Bank', mbud: 70000, atv: 260, orders: 980000, mids: ['4012001', '4012002'], tids: ['T-20001', 'T-20002'], chan: 'In store', cb: 4, cap: 60, min: 200, refund: 30, mode: 'Fixed Duration', from: '2026-12-01', to: '2027-02-28', disp: '06 Nov 2026', by: 'Omar Haddad' },
+  { id: 'CR-1040', m: "McDonald's", brand: "McDonald's", t: "McDonald's · Family Weekend Meals", goal: 'Win back lapsed customers', budget: 150000, st: 'Offer scheduled', sub: '27 Oct 2026', bank: 'Nova Bank', mbud: 50000, atv: 58, orders: 540000, mids: ['4300551'], tids: ['T-55101'], chan: 'In store', cb: 15, cap: 40, min: 60, refund: 14, mode: 'Until Budget Exhausted', from: '2026-11-20', to: '2027-02-28', disp: '30 Oct 2026', by: 'Sara Khalil' },
+  { id: 'CR-1039', m: 'Carrefour', brand: 'Carrefour', t: 'Carrefour · Weekly Shop', goal: 'Grow average spend', budget: 250000, st: 'Offer live', sub: '22 Sep 2026', bank: 'Nova Bank', mbud: 80000, atv: 260, orders: 980000, mids: ['4012001', '4012002', '4012003'], tids: ['T-20001', 'T-20002', 'T-20003'], chan: 'In store', cb: 5, cap: 100, min: 150, refund: 30, mode: 'Fixed Duration', from: '2026-10-01', to: '2026-12-31', disp: '25 Sep 2026', by: 'Sara Khalil', act: 18240, red: 9612, used: 146300, stores: 42 },
+  { id: 'CR-1036', m: 'Starbucks', brand: 'Starbucks', t: 'Starbucks · Morning Coffee', goal: 'Increase transaction frequency', budget: 120000, st: 'Offer live', sub: '02 Sep 2026', bank: 'Nova Bank', mbud: 40000, atv: 34, orders: 260000, mids: ['4410071', '4410072'], tids: ['T-11201', 'T-11202'], chan: 'In store', cb: 10, cap: 50, min: 20, refund: 14, mode: 'Until Budget Exhausted', from: '2026-09-15', to: '2026-12-15', disp: '08 Sep 2026', by: 'Lina Matar', act: 22410, red: 31877, used: 104900, stores: 63 },
+  { id: 'CR-1035', m: 'Subway', brand: 'Subway', t: 'Subway · Fresh Lunch Cashback', goal: 'Win back lapsed customers', budget: 80000, st: 'Offer live', sub: '20 Oct 2026', bank: 'Nova Bank', mbud: 25000, atv: 42, orders: 180000, mids: ['4600811'], tids: ['T-60101'], chan: 'In store', cb: 20, cap: 10, min: 35, refund: 14, mode: 'Fixed Duration', from: '2026-11-01', to: '2027-01-31', disp: '24 Oct 2026', by: 'Omar Haddad', act: 6120, red: 2208, used: 22080, stores: 38 },
+  { id: 'CR-1030', m: 'Carrefour', brand: 'Carrefour', t: 'Carrefour · Summer Basket', goal: 'Grow average spend', budget: 200000, st: 'Offer completed', sub: '12 May 2026', bank: 'Nova Bank', mbud: 70000, atv: 260, orders: 980000, mids: ['4012001'], tids: ['T-20001'], chan: 'In store', cb: 6, cap: 80, min: 150, refund: 30, mode: 'Fixed Duration', from: '2026-06-01', to: '2026-08-31', disp: '20 May 2026', by: 'Sara Khalil', act: 15322, red: 11904, used: 198400, stores: 42 },
+  { id: 'CR-1028', m: 'Lulu', brand: 'Lulu Hypermarket', t: 'Lulu · Back to School', goal: 'Acquire new customers', budget: 50000, st: 'Rejected', sub: '02 Aug 2026', bank: '', mbud: 20000, atv: 185, orders: 410000, mids: ['4029113'], tids: ['T-88101'], chan: 'In store' }
+];
+/* One offer, many banks (OM-2.1, MS-55). The central offer pool sends each approved offer to one or more tenants.
+   Each bank reviews the offer in LuneHub and selects its own card programmes (CL-3.12, CL-3.13, CL-11.3). Budget stays one per campaign. */
+const BK = (n, st, sent, progs, reason, pg) => ({ n, st, sent, progs: progs || [], reason: reason || '', pg: pg || '' });
+/* A bank can have several programmes. The bank chooses the programme for each offer when it approves it in LuneHub (product owner, 12 Nov 2026). */
+const progsOf = n => PROGS.filter(p => p.bank === n && p.st !== 'Suspended').map(p => p.name);
+const pgOf = b => b.pg || (['Approved', 'Live', 'Ended'].includes(b.st) ? progsOf(b.n)[0] || '' : '');
+const SEED_BANKS = {
+  'CR-1041': [BK('Gulf Demo Bank', 'In bank review', '06 Nov 2026')],
+  'CR-1040': [BK('Nova Bank', 'Approved', '30 Oct 2026', ['BIN: Nova Platinum Credit', 'BIN: Nova Signature Credit'])],
+  'CR-1039': [BK('Nova Bank', 'Live', '25 Sep 2026', ['Card programme: Nova Debit'], '', 'Nova Everyday Cashback'), BK('Gulf Demo Bank', 'Live', '02 Oct 2026', ['Card programme: Gulf Cashback Credit', 'BIN: Gulf Classic Debit']), BK('Oasis Bank', 'Rejected', '05 Oct 2026', [], 'Oasis Offers already runs a grocery offer on these dates.')],
+  'CR-1036': [BK('Nova Bank', 'Live', '08 Sep 2026', ['Card programme: Nova Debit', 'BIN: Nova Signature Credit']), BK('Gulf Demo Bank', 'Live', '15 Sep 2026', ['Card programme: Gulf Cashback Credit'])],
+  'CR-1035': [BK('Nova Bank', 'Live', '24 Oct 2026', ['Card programme: Nova Debit'], '', 'Nova Everyday Cashback'), BK('Gulf Demo Bank', 'In bank review', '09 Nov 2026')],
+  'CR-1030': [BK('Nova Bank', 'Ended', '20 May 2026', ['BIN: Nova Platinum Credit'])]
+};
+const EXCL = { 'CR-1039': 'Semi-exclusive', 'CR-1036': 'Publicly available', 'CR-1035': 'Exclusive' };
+REQS.forEach(r => { r.banks = SEED_BANKS[r.id] || []; r.ex = EXCL[r.id] || 'Publicly available'; r.restr = r.id === 'CR-1035' ? 'In store only' : ''; });
+const bnames = o => (o.banks || []).map(b => b.n);
+const bankSum = o => (o.banks && o.banks.length ? o.banks.length + ' · ' + bnames(o).join(', ') : '');
+const RSTAT = ['Pending review', 'Under review', 'In bank review', 'Offer scheduled', 'Offer live', 'Offer completed', 'Rejected'];
+const OFFERS = REQS.filter(r => r.bank && r.cb).map(r => ({ id: r.id, t: r.t, bank: bnames(r).join(', '), st: r.st }));
+const MERCHANTS = [
+  { id: 'm1', name: 'Carrefour', legal: 'Majid Al Futtaim Hypermarkets LLC', web: 'carrefouruae.com', region: 'UAE', st: 'Active', screen: 'Passed', created: '14 Mar 2026', brands: [['Carrefour', '4012001, 4012002, 4012003', 'T-20001, T-20002, T-20003', 'In store', 'lock']] },
+  { id: 'm2', name: 'Lulu', legal: 'Lulu Hypermarket LLC', web: 'luluhypermarket.com', region: 'UAE', st: 'Active', screen: 'Passed', created: '02 Apr 2026', brands: [['Lulu Hypermarket', '4029113, 4029114, 4029115', 'T-88101, T-88102, T-88103', 'In store', ''], ['Lulu Online', '5529001', 'ONLINE-01', 'Online', '']] },
+  { id: 'm3', name: 'Expedia', legal: 'Expedia Inc. (UAE branch)', web: 'expedia.ae', region: 'UAE', st: 'Active', screen: 'Passed', created: '28 Oct 2026', brands: [['Expedia', '5530021', 'ONLINE-01', 'Online', '']] },
+  { id: 'm4', name: 'Starbucks', legal: 'Alshaya Trading Co. LLC', web: 'starbucks.ae', region: 'UAE', st: 'Active', screen: 'Passed', created: '19 Feb 2026', brands: [['Starbucks', '4410071, 4410072', 'T-11201, T-11202', 'In store', 'lock']] },
+  { id: 'm5', name: 'Subway', legal: 'Subway Gulf Franchise LLC', web: 'subway.ae', region: 'UAE', st: 'Inactive', screen: 'In review', created: '07 Jun 2026', brands: [['Subway', '4600811', 'T-60101', 'In store', '']] },
+  { id: 'm6', name: "McDonald's", legal: 'Golden Arches UAE LLC', web: 'mcdonalds.ae', region: 'UAE', st: 'Active', screen: 'Passed', created: '11 Jan 2026', brands: [["McDonald's", '4300551', 'T-55101', 'In store', '']] },
+  { id: 'm7', name: '%Arabica', legal: 'Arabica Coffee Trading LLC', web: 'arabica.ae', region: 'UAE', st: 'Pending approval', screen: 'Passed', created: '09 Nov 2026', brands: [] }
+];
+const MUSERS = [['Nadia Farouk', 'nadia@{d}', 'Admin', 'Active', '14 Mar 2026'], ['Ravi Patel', 'ravi@{d}', 'Member', 'Active', '02 Apr 2026'], ['Hassan Ali', 'hassan@{d}', 'Member', 'Deactivated', '20 May 2026']];
+const SOURCED = [
+  { id: 's1', t: 'Expedia · Hotel Stays in Oman', m: 'Expedia', src: 'Sourcing partner', rec: '07 Nov 2026', val: false, ex: 'Exclusive', banks: [] },
+  { id: 's2', t: 'Lulu · Ramadan Basket', m: 'Lulu', src: 'Direct merchant', rec: '06 Nov 2026', val: true, ex: 'Semi-exclusive', banks: [] },
+  { id: 's3', t: 'Starbucks · Bring a Friend', m: 'Starbucks', src: 'Direct merchant', rec: '03 Nov 2026', val: true, ex: 'Publicly available', banks: [BK('Nova Bank', 'In bank review', '08 Nov 2026')] },
+  { id: 's4', t: '%Arabica · First Visit', m: '%Arabica', src: 'Sourcing partner', rec: '09 Nov 2026', val: false, ex: '', banks: [] }
+];
+/* Refunds for review (OM-11.11, CL-9.18): a queue holds refunds that need review, with a resolve action. Reprocessing of an offer and date is OM-4.12. */
+const REFUNDS = [
+  { id: 'RF-3391', bank: 'Nova Bank', ref: 'Carrefour · Weekly Shop', off: 'CR-1039', tx: 'NB-TX-8825-4410', amount: 'AED 48.00', reason: 'Refund after the hold period. Cashback was already payable, so no change', date: '09 Nov 2026', iso: '2026-11-09', st: 'Resolved' },
+  { id: 'RF-3388', bank: 'Nova Bank', ref: 'Subway · Fresh Lunch Cashback', off: 'CR-1035', tx: 'NB-TX-8831-0416', amount: 'AED 6.20', reason: 'No original transaction reference, so Pulse cannot link it to the purchase', date: '08 Nov 2026', iso: '2026-11-08', st: 'Open', nolink: 1 },
+  /* The same reward as LuneHub, Customer Service, purchase NB-TX-8790-1123. Both products show RWD-2026-901123. */
+  { id: 'RF-3379', bank: 'Nova Bank', ref: 'Starbucks · Morning Coffee', off: 'CR-1036', tx: 'NB-TX-8790-1123', amount: 'AED 120.00', reason: 'Refund inside the hold period. The cashback of AED 18.00 was reversed', date: '07 Nov 2026', iso: '2026-11-07', st: 'Resolved' }
+];
+/* Programmes: Lune operations configures each bank's programme. The bank sees it read only in LuneHub (Loyalty Programme). Same demo values as LuneHub. */
+const PROGS = [
+  { id: 'nova', bank: 'Nova Bank', name: 'Nova Rewards', st: 'Live', upd: '02 Nov 2026', cur: 'points', mods: { tiers: 1, bonus: 1, game: 1 }, pts: { name: 'Nova Points', earn: '100 points = AED 1', red: '100 points = AED 1', months: 12, order: 'earliest' },
+    rates: [['01 Jan 2027', 'AED', 'Nova Bank (issuer)', '0.0100', '0.0105', 'Scheduled'], ['01 Jan 2026', 'AED', 'Nova Bank (issuer)', '0.0100', '0.0100', 'Live'], ['01 Jan 2026', 'AED', 'Merchant', '0.0100', '0.0100', 'Live']],
+    tiers: [['Base', '1x', 'Every customer', '', '', '', ''], ['Silver', '1.25x', '6,000 pts', '5,000 pts', 'Below 4,500 pts', '6,000 pts', ''], ['Gold', '1.5x', '15,000 pts', '12,500 pts', 'Below 11,000 pts', '15,000 pts', 'Nova Platinum Credit, Nova World Elite'], ['Platinum', '2x', '40,000 pts', '35,000 pts', 'Below 30,000 pts', '40,000 pts', '']],
+    hist: [['02 Nov 2026 10:14', 'Sara Khalil', 'Tier Gold', 'Qualifying card products', 'Nova Platinum Credit', 'Nova Platinum Credit, Nova World Elite', 'LIT-89'], ['15 Sep 2026 09:30', 'Omar Haddad', 'Tier Gold', 'Upgrade threshold', '14,000 pts', '15,000 pts', 'LAF-140 LIT-89'], ['01 Jul 2026 14:02', 'Sara Khalil', 'Valuation rates', 'Liability rate, Nova Bank (issuer), from 01 Jan 2027', 'None', 'AED 0.0105', 'LIT-89'], ['12 Jan 2026 09:00', 'Lina Matar', 'Programme', 'Status', 'Not active', 'Live', 'LIT-89']] },
+  { id: 'novaeveryday', bank: 'Nova Bank', name: 'Nova Everyday Cashback', st: 'Live', upd: '05 Nov 2026', cur: 'cash', mods: { tiers: 0, bonus: 0, game: 0 }, hist: [['05 Nov 2026 12:10', 'Sara Khalil', 'Programme', 'Status', 'Not active', 'Live', 'LIT-89'], ['28 Oct 2026 09:45', 'Omar Haddad', 'Programme', 'Card programmes', '–', 'Nova Debit', 'LIT-89']] },
+  { id: 'gulf', bank: 'Gulf Demo Bank', name: 'Gulf Cashback', st: 'Live', upd: '21 Oct 2026', cur: 'cash', mods: { tiers: 0, bonus: 0, game: 0 }, hist: [['21 Oct 2026 11:40', 'Omar Haddad', 'Programme', 'Logo', 'gulf-logo-v1.png', 'gulf-logo-v2.png', 'LIT-89'], ['03 Mar 2026 09:00', 'Sara Khalil', 'Programme', 'Status', 'Not active', 'Live', 'LIT-89']] },
+  { id: 'oasis', bank: 'Oasis Bank', name: 'Oasis Offers', st: 'Suspended', upd: '08 Nov 2026', cur: 'cash', mods: { tiers: 0, bonus: 1, game: 0 }, hist: [['08 Nov 2026 16:20', 'Sara Khalil', 'Programme', 'Status', 'Live', 'Suspended', 'LIT-89'], ['14 Jun 2026 09:00', 'Lina Matar', 'Programme', 'Status', 'Not active', 'Live', 'LIT-89']] }
+];
+/* Reward currency (LAF-11): one required choice per programme, Cashback or Points. It sets how the app shows rewards and what the backend posts.
+   Points convert to cashback when the cardholder redeems (redemption valuation on the Points card). */
+const CUR = { cash: ['Cashback', 'The app shows rewards as cash amounts, such as AED 25. The backend posts cashback.'], points: ['Points', 'The app shows rewards as points, such as 2,500 pts. The backend posts points lots.'] };
+/* Feature flags (LAF-11): each flag shows or hides the SDK component and turns the backend calculation on or off. The three flags are independent. */
+const MODS = [['tiers', 'Tiers', 'Tier status and progress in the app', 'Tier evaluation'], ['bonus', 'Bonus campaigns', 'Bonus campaign offers in the app', 'Bonus earn calculation'], ['game', 'Gamification', 'Missions, streaks and badges in the app', 'Progress tracking and event rewards']];
+/* Gamification (LAF-205 to LAF-210): Lune configures each rule under a programme. The bank selects which rules run in LuneHub, Loyalty Programmes. */
+const GAME = { nova: [
+  { type: 'Mission', name: 'Five a month', budget: '5,000,000', used: 62, trig: 'Card transaction', crit: '5 purchases at participating merchants in a calendar month', reward: '500 points', from: '01 Nov 2026', to: '31 Jan 2027', st: 'Selected', rows: 'LAF-205' },
+  { type: 'Streak', name: 'Weekly regular', budget: '1,500,000', used: 40, trig: 'Card transaction', crit: 'A purchase every week for 4 weeks in a row. One missed week is allowed. A second missed week resets the streak', reward: '250 points at week 4', from: '01 Nov 2026', to: '28 Feb 2027', st: 'Selected', rows: 'LAF-206' },
+  { type: 'Badge', name: 'Coffee lover', budget: '500,000', used: 38, trig: 'Card transaction', crit: '10 purchases at coffee shops in 90 days', reward: 'Badge and 100 points', from: '01 Oct 2026', to: '31 Dec 2026', st: 'Selected', rows: 'LAF-207' },
+  { type: 'Mission', name: 'Go digital', budget: '1,000,000', used: 0, trig: 'Digital engagement', crit: 'Log in to the bank app and activate 3 offers in 30 days', reward: '200 points', from: '01 Dec 2026', to: '31 Mar 2027', st: 'Offered to bank', rows: 'LAF-205 LAF-210' },
+  { type: 'Mission', name: 'Card and savings', budget: '2,000,000', used: 0, trig: 'Relationship', crit: 'Open a savings account and spend AED 2,000 on the card in 60 days', reward: '1,000 points', from: '01 Jan 2027', to: '30 Jun 2027', st: 'Draft', rows: 'LAF-205 LAF-209' }
+] };
+const EVENTS = { nova: [
+  ['Birthday', 'Customer profile', '200', 'Once a year', 'LAF-210'], ['Card anniversary', 'Customer profile', '300', 'Once a year', 'LAF-210'],
+  ['Referral: referred customer activates a card', 'Bank referral event', '500 to the referrer', 'Up to 5 a year', 'LAF-79 LAF-210'], ['Personal loan opened', 'Product event', '1,000', 'Once per loan', 'LAF-79 LAF-209'],
+  ['Savings account opened', 'Product event', '1,000', 'Once per account', 'LAF-209'], ['First app login of the month', 'Digital engagement', '20', 'Once a month', 'LAF-79 LAF-210']
+] };
+/* Reason codes (same glossary as LuneHub): the code always shows with its short reason text. */
+const REASONS = { not_activated: 'Offer not activated', below_min_spend: 'Below minimum spend', merchant_mismatch: 'Merchant not in campaign', terminal_mismatch: 'Terminal not in campaign', card_bin_not_selected: 'Card product not selected', outside_dates: 'Outside campaign dates', cap_customer: 'Customer cap reached', budget_used: 'Campaign budget used', refund_in_hold: 'Refunded in hold period' };
+const rc = c => REASONS[c] ? '<span class="num">' + c + '</span> · ' + REASONS[c] : c;
+/* Reward reference (LAF-113): one reference links the attribution, the merchant transaction, the reward and the redemption.
+   Format RWD-2026-NNNNNN. LuneHub builds the reference the same way, so one reward keeps one reference in both products. */
+const RWD = n => 'RWD-2026-' + String(n).padStart(6, '0');
+const rwdTx = tx => RWD(String(tx).replace(/[^0-9]/g, '').slice(-6));
+
+/* Event reward ledger (LAF-79, LAF-210): each posted event reward is a points lot in the same ledger as purchase points.
+   Production holds thousands of rows, so the sample set is generated here from a fixed seed.
+   [date, programme id, customer, event index in EVENTS, points, status, reason, points lot number] */
+const EVL = (() => {
+  let s = 20261113;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const hex = n => { let o = ''; for (let i = 0; i < n; i++) o += '0123456789ABCDEF'[Math.floor(rnd() * 16)]; return o; };
+  const SEED = [
+    ['2026-11-12', 'nova', 'CUS-7F3A21', 0, 200, 'Posted', '', 0],
+    ['2026-11-12', 'nova', 'CUS-88D2B7', 1, 300, 'Posted', '', 0],
+    ['2026-11-11', 'nova', 'CUS-2B71F0', 0, 200, 'Rejected', 'Already rewarded this year', 0],
+    ['2026-11-11', 'nova', 'CUS-5C0D33', 2, 500, 'Pending', 'Waiting for the bank to confirm the card activation', 0],
+    ['2026-11-10', 'nova', 'CUS-41E9A6', 2, 500, 'Posted', '', 0],
+    ['2026-11-10', 'nova', 'CUS-9A0C17', 2, 500, 'Rejected', 'Referral limit reached: 5 a year', 0],
+    ['2026-11-09', 'nova', 'CUS-3D5B82', 1, 300, 'Reversed', 'The bank cancelled the event. The card was closed', 0],
+    ['2026-11-09', 'nova', 'CUS-C7712E', 3, 1000, 'Posted', '', 0],
+    ['2026-11-08', 'nova', 'CUS-6B2F94', 4, 1000, 'Posted', '', 0],
+    ['2026-11-07', 'nova', 'CUS-1A9F03', 0, 200, 'Posted', '', 0],
+    ['2026-11-01', 'nova', 'CUS-7F3A21', 5, 20, 'Posted', '', 0],
+    ['2026-11-01', 'nova', 'CUS-E40D58', 5, 20, 'Rejected', 'Already rewarded this month', 0]
+  ];
+  const KNOWN = [...new Set(SEED.map(x => x[2]))];
+  const CUS = KNOWN.concat(Array.from({ length: 1400 }, () => 'CUS-' + hex(6)));
+  const EV = EVENTS.nova;
+  const PTS = EV.map(e => +String(e[2]).replace(/[^0-9]/g, ''));
+  /* One reason for each status. The reason always matches the event. */
+  const REJ = ['Already rewarded this year', 'Already rewarded this year', 'Referral limit reached: 5 a year', 'The loan was already rewarded', 'The account was already rewarded', 'Already rewarded this month'];
+  const PEND = { 2: 'Waiting for the bank to confirm the card activation', 3: 'Waiting for the bank to confirm the loan', 4: 'Waiting for the bank to confirm the account' };
+  const REV = ['The bank cancelled the event. The card was closed', 'The bank sent the event twice', 'The product was closed inside the cooling-off period'];
+  const rows = SEED.slice();
+  const END = Date.UTC(2026, 10, 12);
+  for (let day = 0; day < 181; day++) {
+    const iso = new Date(END - day * 86400000).toISOString().slice(0, 10);
+    const n = 14 + Math.floor(rnd() * 12);
+    for (let k = 0; k < n; k++) {
+      const ei = Math.floor(rnd() * EV.length), r = rnd();
+      let st = r < 0.79 ? 'Posted' : r < 0.87 ? 'Pending' : r < 0.95 ? 'Rejected' : 'Reversed';
+      if (st === 'Pending' && (day > 6 || !PEND[ei])) st = 'Posted';
+      const why = st === 'Rejected' ? REJ[ei] : st === 'Pending' ? PEND[ei] : st === 'Reversed' ? REV[Math.floor(rnd() * REV.length)] : '';
+      rows.push([iso, 'nova', CUS[Math.floor(rnd() * CUS.length)], ei, PTS[ei], st, why, 0]);
+    }
+  }
+  rows.sort((a, b) => (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0));
+  let lot = 48210;
+  for (let i = rows.length - 1; i >= 0; i--) if (rows[i][5] === 'Posted' || rows[i][5] === 'Reversed') rows[i][7] = lot++;
+  return rows;
+})();
+const ADMINS = [['sara.k@lunedata.io', 'Super admin', '12 Jan 2026'], ['omar.h@lunedata.io', 'Admin writer', '03 Mar 2026'], ['lina.m@lunedata.io', 'Admin writer', '21 Apr 2026'], ['yusuf.r@lunedata.io', 'Admin reader', '07 Oct 2026']];
+
+/* ---------- State ---------- */
+const S = {
+  gtest: '', grTried: false, grErr: '', gr: { budget: '1000000', cards: 'All Nova Rewards cards', tier: 'All tiers', type: 'Mission', trig: 'Card transaction', meas: 'Number of purchases', where: 'Category: Dining', target: '3', win: 'In 30 days', per: 'Week', min: '1', runs: '4', grace: '1', rtype: 'Points', pts: '300', badge: 'Weekend explorer', steps: 'Week 2: 50 points', name: 'Weekend explorer', desc: 'Dine out 3 times this month', from: '2027-01-01', to: '2027-03-31' },
+  role: 'ops', fregion: '', fmerch: '', ftid: '', fst: '', page: 1,
+  of: { q: '', src: '', type: '', bank: '', st: '', sort: 'new' }, pick: [],
+  rv: { tenant: 'Nova Bank', tenants: ['Nova Bank'], tenErr: false, ex: 'Publicly available', restr: '', tg: { cards: ['Nova Platinum Credit', 'Nova Signature Credit'], inc: [{ subj: 'merchant', val: 'Carrefour', meas: 'count', op: 'least', v1: '3', v2: '', days: '90' }, { subj: 'category', val: 'Groceries', meas: 'spend', op: 'least', v1: '1500', v2: '', days: '90' }], exc: [{ subj: 'merchant', val: 'Lulu', meas: 'count', op: 'least', v1: '1', v2: '', days: '30' }], sup: [{ subj: 'category', val: 'Groceries', days: '14' }] },
+    tested: false, prio: ['Carrefour · Weekly Shop', 'Lulu · Hypermarket Saver', 'Carrefour · Summer Basket'], prioEff: '2026-12-01', prioSent: false },
+  af: { q: '', net: '', bank: '' }, afPick: [], ev: { q: '', prog: '', ev: '', st: '', from: '', to: '', page: 1 }, evPer: 25,
+  atab: 'campaigns', ap: { q: '', net: '', bank: '', st: '', page: 1 },
+  rtab: 'suppliers', ri: { q: '', sup: '', mkt: '', cat: '', page: 1 }, ro: { q: '', sup: '', st: '', page: 1 },
+  rprog: '', rc: { q: '', sup: '', mkt: '', cat: '', inc: '', page: 1 },
+  mtab: 'list', otab: 'exceptions', reproc: { off: 'CR-1039', date: '2026-11-09', done: false },
+  mcLook: 'NB-TX-8822-1200', sheet: null, sel: {}
+};
+
+/* ---------- Small builders ---------- */
+const card = (t, d, tags, body, cls, rows) => '<section class="card' + (cls ? ' ' + cls : '') + '"' + (rows ? ' data-req="' + rows + '"' : '') + '><div class="card-h"><div><h3 class="card-t">' + t + '</h3>' + (d ? '<p class="card-d">' + d + '</p>' : '') + '</div><div class="tags">' + tags + '</div></div>' + body + '</section>';
+const planCard = (t, d, rows, body) => card(t, d, tagP(rows), body, '', rows);
+const mc = (t, v, d, rows) => '<div class="mc"' + (rows ? ' data-req="' + rows + '"' : '') + '><p class="t">' + t + '</p><p class="v num">' + v + '</p>' + (d ? '<p class="d">' + d + '</p>' : '') + '</div>';
+const n0 = n => Number(n).toLocaleString('en-US');
+const aed = n => 'AED ' + n0(Math.round(n));
+const dmy = s => { if (!s || !/^\d{4}-/.test(s)) return s || ''; const [y, m, d] = s.split('-'); return d + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+m - 1] + ' ' + y; };
+const stBadge = s => '<span class="badge ' + ({ 'Offer live': 'ok', Active: 'ok', Passed: 'ok', Approved: 'ok', Validated: 'ok', Completed: 'ok', 'Offer scheduled': 'sec', 'Under review': 'warn', 'Pending review': 'out', 'In bank review': 'warn', 'In review': 'warn', 'Pending approval': 'warn', 'Awaiting approval': 'warn', 'In progress': 'sec', Open: 'out', Inactive: 'bad', Deactivated: 'bad', Escalated: 'bad', 'Rolled back': 'out', 'Offer completed': 'out', Live: 'ok', Suspended: 'warn', Scheduled: 'sec', Rejected: 'bad', 'To validate': 'warn', Locked: 'out', Ended: 'out', Selected: 'ok', 'Offered to bank': 'warn', Draft: 'out', Tested: 'sec', 'Not selected': 'out', Posted: 'ok', Pending: 'warn', Reversed: 'out', Confirmed: 'ok', Cancelled: 'bad', Placed: 'sec', Reserved: 'warn', Fulfilled: 'ok', Failed: 'bad', Refunded: 'out', Available: 'ok', 'Out of stock': 'bad', 'Not active': 'out', Included: 'ok', Excluded: 'bad' }[s] || 'out') + '">' + esc(s) + '</span>';
+const sel = (id, label, opts, cur, rows, attrs) => '<div class="fg"' + (rows ? ' data-req="' + rows + '"' : '') + '>' + (label ? '<label for="' + id + '">' + label + '</label>' : '') + '<select class="trigger" id="' + id + '" ' + (attrs || '') + '>' + opts.map(o => { o = Array.isArray(o) ? o : [o, o]; return '<option value="' + esc(o[0]) + '"' + (String(cur) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+const inp = (id, label, val, rows, attrs, hint) => '<div class="fg"' + (rows ? ' data-req="' + rows + '"' : '') + '>' + (label ? '<label for="' + id + '">' + label + '</label>' : '') + '<input class="field" id="' + id + '" value="' + esc(val) + '" autocomplete="off" ' + (attrs || '') + '>' + (hint ? '<p class="fhint">' + hint + '</p>' : '') + '</div>';
+const req = l => l + ' <span style="color:var(--destructive)">*</span>';
+const head = (crumb, title, desc, right, badges) => '<header class="ph"><div class="ph-row"><div>' + (crumb ? '<p class="crumb">' + crumb + '</p>' : '') + '<div class="hrow"><h1 class="title">' + title + '</h1>' + (badges || '') + '</div>' + (desc ? '<p class="desc">' + desc + '</p>' : '') + '</div><div class="actions">' + (right || '') + '</div></div></header>';
+const tabs = (key, list, cur) => '<div class="tabs" role="tablist">' + list.filter(t => !t[2] || P()).map(t => '<button class="tab" role="tab" data-tab="' + key + '" data-v="' + t[0] + '" aria-selected="' + (cur === t[0]) + '">' + t[1] + '</button>').join('') + '</div>';
+const legend = () => '<p class="sm muted" data-legend>Labels show what our RFP answers commit to. Hover a label for the requirement and our answer.</p>';
+const tl = items => '<div class="tl">' + items.map(a => '<div class="tl-i"><i class="' + a[0] + '"></i><div><b>' + a[1] + '</b><span>' + a[2] + '</span></div><time>' + a[3] + '</time></div>').join('') + '</div>';
+
+/* ---------- Navigation: the real Pulse Admin items first, then RFP-committed additions ---------- */
+const NAV_OPS = [['requests', 'CLO Campaign Requests', 'tag'], ['offers', 'Offers', 'pct'], ['merchants', 'Merchants', 'store'], ['affiliate', 'Affiliate Ledger', 'link'], ['redemption', 'Redemption Catalogue', 'gift'], ['users', 'Admin Users', 'users'], ['portfolio', 'Portfolio', 'grid'], ['programmes', 'Programmes', 'layers'], ['operations', 'Operations', 'pulse']];
+const route = () => { const h = (location.hash || '').replace(/^#\/?/, ''); const p = h.split('/'); return { page: p[0] || 'requests', a: p[1] || '', b: p[2] || '' }; };
+const go = h => { if (location.hash === '#' + h) render(); else location.hash = h; };
+
+function side(r) {
+  const nav = NAV_OPS;
+  return '<div class="sb-head"><a href="#" data-go="' + nav[0][0] + '" aria-label="Pulse Admin home" data-ux-ignore="tap-target-small">' + LOGO + '</a><span class="env">Pulse Admin</span></div><div class="sb-body">' +
+    nav.map((n, i) => (n[0] === 'users' ? '<p class="tag" style="padding:.75rem .75rem .25rem">Portfolio and operations</p>' : '') + '<button class="sb-item" data-go="' + n[0] + '"' + (r.page === n[0] || (r.page === 'request' && n[0] === 'requests') || (r.page === 'merchant' && n[0] === 'merchants') || (r.page === 'programme' && n[0] === 'programmes') ? ' aria-current="page" style="background:var(--muted);color:var(--primary)"' : '') + '>' + svg(I[n[2]]) + n[1] + '</button>').join('') + '</div>';
+}
+function top() {
+  const who = ['SK', 'sara.k@lunedata.io'];
+  return '<b style="font-size:1rem">Pulse Admin</b><span class="badge sec">UAE</span><span class="sp"></span>' +
+    '<span class="av" aria-hidden="true">' + who[0] + '</span><span class="sm">' + who[1] + '</span><button class="btn ghost" data-toast="Signed out (prototype).">Sign out</button>';
+}
+
+/* ---------- 1. Campaign Requests (real list) ---------- */
+function pgRequests() {
+  const base = REQS.filter(o => (!S.fregion || o.region === S.fregion || S.fregion === 'UAE') && (!S.fmerch || o.m === S.fmerch) && (!S.ftid || (o.banks || []).some(b => TID(b.n) === S.ftid)));
+  const L = base.filter(o => !S.fst || o.st === S.fst);
+  const cnt = s => base.filter(o => o.st === s).length;
+  return head('', 'CLO Campaign Requests', 'Card-linked campaign requests from merchants. Lune operations reviews and configures each one, then sends it to one or more banks. Affiliate campaigns come from a network and sit in the Affiliate Ledger.', legend()) +
+    '<div class="content">' +
+    card('Requests', '', tagB('OM-1.14 LAF-16'),
+      '<div class="search" data-req="OM-1.14">' + sel('fregion', '', [['', 'Region: All'], ['UAE', 'UAE']], S.fregion, '', 'aria-label="Region" style="width:11rem"') + sel('fmerch', '', [['', 'Merchant: All']].concat([...new Set(REQS.map(r => r.m))].map(m => [m, m])), S.fmerch, '', 'aria-label="Merchant" style="width:12rem"') + sel('ftid', '', [['', 'Tenant ID: All']].concat(BANKS.map(b => [b.tid, b.tid])), S.ftid, '', 'aria-label="Tenant ID" style="width:14rem"') + '<button class="btn ghost" data-reset>Reset filters</button></div>' +
+      '<div class="tabs" role="tablist" data-req="OM-1.14">' + [['', 'All', base.length]].concat(RSTAT.map(s => [s, s, cnt(s)])).map(t => '<button class="tab" role="tab" data-fst="' + t[0] + '" aria-selected="' + (S.fst === t[0]) + '">' + t[1] + ' <span class="muted">' + t[2] + '</span></button>').join('') + '</div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Region</th><th>Merchant</th><th>Campaign Name</th><th>Goal</th><th class="r">Budget (AED)</th><th>Status</th><th>Submitted</th></tr></thead><tbody>' +
+      (L.length ? L.map(o => '<tr style="cursor:pointer" data-row="request/' + o.id + '"><td>UAE</td><td>' + o.m + '</td><td><button class="lnk" data-go="request/' + o.id + '">' + o.t + '</button></td><td>' + o.goal + '</td><td class="r num">' + n0(o.budget) + '</td><td>' + stBadge(o.st) + '</td><td class="num">' + o.sub + '</td></tr>').join('') : '<tr><td colspan="7" class="muted">No campaign requests match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted"><span>Total ' + L.length + '</span><span class="sp"></span><span>Page 1 of 1</span><button class="ib" disabled aria-label="Previous page">' + svg('<path d="m15 18-6-6 6-6"/>') + '</button><button class="ib" disabled aria-label="Next page">' + svg('<path d="m9 18 6-6-6-6"/>') + '</button></div>', '', 'OM-1.14 LAF-16') +
+    '</div>';
+}
+
+/* ---------- 2. Campaign Request detail ---------- */
+const reqDetails = o => card('Campaign Request Details', '', tagB('CL-11.21 OM-11.1'),
+  '<dl class="kv"><dt>Merchant</dt><dd>' + o.m + '</dd><dt>Region</dt><dd>UAE</dd><dt>Tenant IDs</dt><dd data-req="LAF-9 OM-2.1">' + (o.banks.length ? o.banks.map(b => TID(b.n)).join(', ') : '<span class="muted" style="font-weight:500">Not yet assigned</span>') + '</dd><dt>Goals</dt><dd>' + o.goal + '</dd><dt>Monthly marketing budget</dt><dd>' + aed(o.mbud) + '</dd><dt>Avg transaction value</dt><dd>' + aed(o.atv) + '</dd><dt>Avg monthly orders</dt><dd>' + n0(o.orders) + '</dd><dt>Submitted</dt><dd>' + o.sub + '</dd></dl>', '', 'CL-11.21 OM-11.1');
+const brandIds = (o, locked) => card('Brand &amp; Identifiers', locked ? '' : 'Lune operations checks the MIDs and terminals before the bank sees the campaign.', tagB('CL-13.3 CL-13.11') + (locked ? tagB('CL-13.2') : ''),
+  '<dl class="kv"><dt>Brand</dt><dd>' + o.brand + '</dd><dt>MIDs</dt><dd class="num">' + o.mids.join(', ') + '</dd><dt>TIDs</dt><dd class="num">' + o.tids.join(', ') + '</dd><dt>Channel</dt><dd>' + o.chan + '</dd></dl>' + (locked ? '<p class="sm muted" data-req="CL-13.2">These MIDs are locked while a live campaign uses them.</p>' : '<p class="sm muted" data-req="CL-13.3">No duplicates. Pulse rejects duplicate MIDs and terminal IDs.</p>'), '', 'CL-13.3 CL-13.11 CL-13.2');
+/* Targeting (CL-4.1, CL-4.4, OM-5.2, OM-5.3, LAF-146, CL-11.9): the audience is a query over the customer's enriched transaction history. Each row: subject (merchant or category), measure (number of purchases or total spend), operator, value, window in days. */
+const TG_MERCH = ['Carrefour', 'Lulu', 'Spinneys', 'Starbucks', "McDonald's", 'Subway', 'Noon', 'Namshi', 'Expedia', '%Arabica'];
+const TG_CAT = ['Groceries', 'Dining', 'Coffee shops', 'Fashion', 'Electronics', 'Travel', 'Fuel'];
+const TG_CARDS = ['Nova Platinum Credit', 'Nova Signature Credit', 'Nova World Elite', 'Nova Everyday Debit', 'Nova Titanium Credit', 'Nova Infinite'];
+const TG_MEAS = [['count', 'Number of purchases'], ['spend', 'Total spend in AED']];
+const TG_OP = [['least', 'At least'], ['most', 'At most'], ['between', 'Between']];
+const tgVal = (r, v) => r.meas === 'spend' ? 'AED ' + n0(v || 0) : n0(v || 0);
+const tgText = (k, r) => k === 'sup' ? 'Activated an offer ' + (r.subj === 'merchant' ? 'at ' : 'in ') + r.val + ', last ' + r.days + ' days' :
+  (r.meas === 'spend' ? 'Total spend' : 'Number of purchases') + (r.subj === 'merchant' ? ' at ' : ' in ') + r.val + ', ' + (r.op === 'between' ? 'between ' + tgVal(r, r.v1) + ' and ' + tgVal(r, r.v2) : (r.op === 'most' ? 'at most ' : 'at least ') + tgVal(r, r.v1)) + ', last ' + r.days + ' days';
+const tgRow = (k, r, i) => {
+  const id = 'tg-' + k + '-' + i, at = f => 'data-tg="' + k + ':' + i + ':' + f + '"';
+  const subj = sel(id + '-s', 'Subject', [['merchant', 'Merchant or brand'], ['category', 'Category']], r.subj, '', at('subj'));
+  const val = sel(id + '-v', r.subj === 'merchant' ? 'Merchant or brand' : 'Category', r.subj === 'merchant' ? TG_MERCH : TG_CAT, r.val, '', at('val'));
+  const days = inp(id + '-d', 'Last N days', r.days, '', 'type="number" inputmode="numeric" min="1" ' + at('days'));
+  const del = '<button class="ib" data-tgdel="' + k + ':' + i + '" aria-label="Remove row">' + svg(I.x) + '</button>';
+  if (k === 'sup') return '<div class="rb" data-req="OM-5.3"><div class="rb-h"><span class="k sup rule-k">Skip</span><span class="rb-s">' + esc(tgText(k, r)) + '</span><span class="sp"></span>' + del + '</div><div class="rb-g">' + subj + val + days + '</div></div>';
+  const meas = sel(id + '-m', 'Measure', TG_MEAS, r.meas, '', at('meas'));
+  const op = sel(id + '-o', 'Operator', TG_OP, r.op, '', at('op'));
+  const lab = r.meas === 'spend' ? 'AED' : 'Purchases';
+  const v1 = inp(id + '-1', r.op === 'between' ? 'From (' + lab + ')' : 'Value (' + lab + ')', r.v1, '', 'inputmode="numeric" ' + at('v1'));
+  const v2 = r.op === 'between' ? inp(id + '-2', 'To (' + lab + ')', r.v2, '', 'inputmode="numeric" ' + at('v2')) : '<div></div>';
+  return '<div class="rb" data-req="' + (k === 'inc' ? 'CL-4.1 CL-4.4 OM-5.2 LAF-146' : 'OM-5.3 LAF-146') + '"><div class="rb-h"><span class="k ' + k + ' rule-k">' + (k === 'inc' ? 'Include' : 'Exclude') + '</span><span class="rb-s">' + esc(tgText(k, r)) + '</span><span class="sp"></span>' + del + '</div>' +
+    '<div class="rb-g">' + subj + val + meas + '</div><div class="rb-g2">' + op + v1 + v2 + days + '</div></div>';
+};
+const tgRo = (k, r) => '<div class="rule" data-req="' + (k === 'sup' ? 'OM-5.3' : k === 'inc' ? 'CL-4.1 CL-4.4 OM-5.2 LAF-146' : 'OM-5.3 LAF-146') + '"><span class="k ' + k + '">' + ({ inc: 'Include', exc: 'Exclude', sup: 'Skip' }[k]) + '</span><span>' + esc(tgText(k, r)) + '</span><span></span></div>';
+const audiencePanel = (o, ro) => {
+  const T = S.rv.tg, sec = (k, title, hint) => '<div class="rb-sec"><p class="sm b">' + title + '</p>' + (T[k].length ? T[k].map((r, i) => tgRow(k, r, i)).join('') : '<p class="sm muted">' + hint + '</p>') + '</div>';
+  const cardRow = ro ? '<div class="rule" data-req="CL-3.12 OM-5.1"><span class="k inc">Card product</span><span>' + (T.cards.length ? esc(T.cards.join(', ')) : 'All card products') + '</span><span></span></div>' :
+    '<fieldset class="fg" data-req="CL-3.12 OM-5.1"><legend class="flabel">Card product</legend><div class="tchk">' + TG_CARDS.map(c => '<label class="tck"><input type="checkbox" data-tgcard="' + esc(c) + '"' + (T.cards.includes(c) ? ' checked' : '') + '><span><b>' + c + '</b></span></label>').join('') + '</div><p class="fhint">Leave all empty for every card product. The bank confirms its card programmes when it approves.</p></fieldset>';
+  const body = ro ? '<div class="stack">' + ['inc', 'exc', 'sup'].map(k => T[k].map(r => tgRo(k, r)).join('')).join('') + '</div>' :
+    '<div class="stack">' +
+    sec('inc', 'Include customers who match all of these rows', 'No include rows. Every customer is eligible. The bank chooses the card programmes and BINs when it reviews the offer.') +
+    sec('exc', 'Exclude customers who match any of these rows', 'No exclusions.') +
+    sec('sup', 'Skip customers with recent offer activity', 'No skip rule.') +
+    '<div class="hrow"><button class="btn" data-tgadd="inc">' + svg(I.plus) + 'Add include row</button><button class="btn" data-tgadd="exc">' + svg(I.plus) + 'Add exclusion</button><button class="btn" data-tgadd="sup">' + svg(I.plus) + 'Add skip rule</button><span class="sp"></span><button class="btn" data-test data-req="CL-11.9">Test audience</button></div>' +
+    '<p class="fhint">Rules read the customer\'s enriched transaction history. Customers are identified by tokenised IDs only.</p>' +
+    (S.rv.tested ? '<div class="note" data-req="CL-11.9"><b>Test result:</b> 48,210 eligible customers in ' + esc(S.rv.tenant || 'Nova Bank') + '. 9,844 removed by exclusions and skip rules. Sample IDs: CUS-7F3A21, CUS-2B71F0, CUS-88D2B7.</div>' : '') + '</div>';
+  return card('Targeting', ro ? 'The audience for this offer.' : 'Build the audience from the customer\'s transaction history. Each row sets a merchant or category, a measure, a value and a window.', tagB('CL-4.1 CL-4.4 OM-5.2 LAF-146') + tagB('OM-5.3') + tagB('CL-3.12 OM-5.1') + tagB('CL-11.9'), body, '', 'CL-4.1 CL-4.4 OM-5.2 OM-5.3 LAF-146 CL-3.12 OM-5.1 CL-11.9');
+};
+const prioPanel = o => card('Campaign Priority', 'In a group, only the highest-priority campaign that qualifies pays.', tagB('LAF-94 LAF-95'),
+  '<div class="stack"><p class="sm b">Group: ' + S.rv.tenant + ' · Groceries</p>' + S.rv.prio.map((c, i) => '<div class="prio' + (c === o.t ? ' me' : '') + '" data-req="LAF-95 LAF-94"><span class="n">' + (i + 1) + '</span><span><b>' + c + '</b>' + (c === o.t ? ' <span class="sm muted">This campaign</span>' : '') + '</span><button class="ib" data-prio="' + i + ':-1" aria-label="Move up"' + (i ? '' : ' disabled') + '>' + svg(I.up) + '</button><button class="ib" data-prio="' + i + ':1" aria-label="Move down"' + (i < S.rv.prio.length - 1 ? '' : ' disabled') + '>' + svg(I.down) + '</button></div>').join('') +
+  '<div class="row2" style="align-items:end">' + inp('prioEff', 'Applies from', S.rv.prioEff, 'LAF-95', 'type="date"') + '<div><button class="btn" data-prio-send' + (S.rv.prioSent ? ' disabled' : '') + '>' + (S.rv.prioSent ? 'Sent for approval' : 'Submit for approval') + '</button></div></div>' +
+  '<p class="fhint" data-req="LAF-95">A second Lune admin approves the change. It goes into the audit history.</p></div>', '', 'LAF-95 LAF-94 CL-3.17');
+const isPromo = o => o.type === 'promo';
+const phone = (o, f) => '<div class="phone" data-req="OM-1.11"><div class="cover"><span class="logo">' + esc(o.m.slice(0, 4)) + '</span></div><div class="pb"><span class="sm muted">' + o.m + '</span><h4>' + esc(f.name) + '</h4><span class="big">' + f.cb + (isPromo(o) ? '% off with code' : '% cashback') + '</span><span class="sm">' + esc(f.desc) + '</span>' +
+  (isPromo(o) ? '<ol><li>Show the code.</li><li>Shop at ' + o.m + ' through the offer link.</li><li>Enter the code at checkout.</li></ol>' : '<ol><li>Activate the offer.</li><li>Pay with your ' + (S.rv.tenant || 'bank') + ' card at ' + o.m + '.</li><li>Cashback goes to your card.</li></ol>') + '<span class="sm muted">Valid ' + dmy(f.from) + ' to ' + dmy(f.to) + '.</span><span class="cta">' + (isPromo(o) ? 'Show code' : 'Activate offer') + '</span></div></div>';
+/* Promo codes (OM-4.10, OM-4.11, MS-17): the merchant provides the codes through our affiliate network partner. Lune reads availability, validity and expiry from the network feed. Code inventory and replenishment stay with the merchant and the partner. */
+const promoPanel = (o, locked) => !o.promo ? '' : card('Promo Codes', 'The merchant provides the codes through our affiliate network partner. Lune reads availability, validity and expiry from the network feed.', tagB('OM-4.10 OM-4.11 MS-17'),
+  '<div class="row3">' + inp('pcSrc', 'Source', o.promo.source, 'OM-4.10 MS-17', 'readonly') + sel('pcType', 'Code type', [['Static', 'Static: one code for the offer'], ['Single-use', 'Single-use codes']], o.promo.codeType, 'OM-4.10', locked ? 'disabled' : '') + inp('pcQty', 'Quantity received', n0(o.promo.qty), 'OM-4.10 MS-17', 'readonly') +
+  inp('pcFrom', 'Valid from', o.promo.from, 'OM-4.10', 'type="date" readonly') + inp('pcTo', 'Valid till', o.promo.to, 'OM-4.10 OM-4.11', 'type="date" readonly') + inp('pcLeft', 'Remaining availability', n0(o.promo.remaining) + ' of ' + n0(o.promo.qty), 'OM-4.11', 'readonly', 'Read from the network feed.') + '</div>' +
+  (o.promo.reveals ? '<dl class="kv" data-req="OM-6.8 CL-3.1 OM-4.11"><dt>Code reveals</dt><dd>' + n0(o.promo.reveals) + '</dd><dt>Purchases reported by the network</dt><dd>' + n0(o.promo.reported) + '</dd></dl>' : '') +
+  '<p class="fhint" data-req="OM-4.1 OM-4.11">The bank app shows the code and a tracked link. The merchant checkout validates the code. When a code expires or runs out, Lune stops showing it.</p>', '', 'OM-4.10 OM-4.11 MS-17');
+const capTx = o => o.capTx || Math.max(5, Math.round((o.cap || 75) * 0.4 / 5) * 5);
+const offerForm = o => ({ name: o.t.split(' · ')[1], desc: o.desc || 'Get ' + (o.cb || 7) + '% cashback on purchases of AED ' + (o.min || 150) + ' or more. Up to AED ' + capTx(o) + ' for each purchase and AED ' + (o.cap || 75) + ' for each customer during the campaign.', cb: o.cb || 7, from: o.from || '2026-12-01', to: o.to || '2027-03-31' });
+
+/* Tenants (banks): one offer can go to several tenants. Each bank then reviews it on its own (OM-2.1, MS-55). */
+const progOf = n => PROGS.find(p => p.bank === n) || {};
+const tenantPick = () => '<fieldset class="fg" data-req="OM-2.1 MS-55 LAF-9 OM-2.8"><legend class="flabel">' + req('Tenants (banks)') + '</legend><div class="tchk">' +
+  BANKS.map(b => { const off = progOf(b.name).st === 'Suspended'; return '<label class="tck"><input type="checkbox" data-ten="' + esc(b.name) + '"' + (S.rv.tenants.includes(b.name) ? ' checked' : '') + (off ? ' disabled' : '') + '><span><b>' + b.name + '</b><small>' + b.tid + (off ? ' · Programme suspended' : '') + '</small></span></label>'; }).join('') +
+  '</div><p class="fhint">The offer goes to each bank for its own review. The bank chooses the programme when it approves.</p>' + (S.rv.tenErr ? '<p class="ferr" role="alert">Select at least one bank.</p>' : '') + '</fieldset>';
+const banksCard = o => {
+  const open = o.st !== 'Offer completed';
+  return card('Banks', 'The offer goes to each bank for its own review. Each bank selects card programmes, card products by BIN, or both in LuneHub.', tagB('OM-2.1 MS-55') + tagB('CL-11.3 OM-1.6'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Bank (tenant)</th><th>Programme</th><th>Status</th><th>Card programmes and BINs</th><th>Sent</th></tr></thead><tbody>' +
+    o.banks.map(b => '<tr data-req="OM-2.1 CL-11.3 OM-1.6"><td><b>' + b.n + '</b><small style="white-space:nowrap">' + TID(b.n) + '</small></td><td class="wrap" data-req="LAF-9">' + (pgOf(b) ? esc(pgOf(b)) : '<span class="muted">' + (b.st === 'Rejected' ? 'None' : 'The bank chooses it when it approves') + '</span>') + '</td><td class="wrap">' + stBadge(b.st) + (b.reason ? '<small>Reason: ' + esc(b.reason) + '</small>' : '') + '</td><td class="wrap" data-req="CL-3.12 CL-3.13 CL-11.3">' + (b.progs.length ? b.progs.join(', ') : '<span class="muted">' + (b.st === 'Rejected' ? 'None' : 'The bank selects them when it approves') + '</span>') + '</td><td class="num">' + b.sent + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<div class="hrow"><p class="sm muted">Read only. Each bank selects its own card programmes and BINs.</p><span class="sp"></span>' + (open ? '<button class="btn" data-sheet="sendbank:' + o.id + '" data-req="OM-2.1 MS-55">' + svg(I.plus) + 'Send to another bank</button>' : '') + '</div>', '', 'OM-2.1 MS-55 CL-11.3 OM-1.6');
+};
+
+function pgRequest(id) {
+  const o = REQS.find(x => x.id === id) || REQS[0];
+  const crumb = '<button data-go="requests">CLO Campaign Requests</button> / ' + o.id;
+  const f = offerForm(o);
+  if (o.st === 'Pending review' || o.st === 'Under review' || o.st === 'Rejected') {
+    const edit = o.st === 'Under review';
+    const right = o.st === 'Pending review' ? '<button class="btn pri" data-start="' + o.id + '">Start review</button>' : '';
+    return head(crumb, o.t, 'Submitted ' + o.sub + ' by ' + o.m + '.', right, stBadge(o.st)) +
+      '<div class="content">' + legend() + '<div class="split"><div class="stack">' + reqDetails(o) + brandIds(o, false) +
+      (edit ? card('Create Offer', 'Internal review and configure. The offer goes to each bank you select for approval.', tagB('OM-1.6 CL-11.3') + tagB('OM-2.1 MS-55') + tagB('CL-3.4 CL-3.5 CL-3.11') + tagB('OM-8.7 CL-3.3') + tagB('OM-1.10 OM-1.12 OM-1.17'),
+        '<div class="row2">' + inp('ofRegion', 'Region', 'UAE', 'OM-4.7', 'readonly', 'From the campaign request.') + inp('ofName', req('Offer Name'), f.name, 'OM-1.6 OM-1.18 OM-1.2') + '</div>' +
+        tenantPick() +
+        '<div class="row2">' + sel('ofType', req('Offer Type'), [['card', 'Card-linked'], ['promo', 'Promo code']], isPromo(o) ? 'promo' : 'card', 'OM-1.1 OM-4.1') + inp('ofVal', 'Validation Method', isPromo(o) ? 'Code at merchant checkout. The affiliate network reports the purchase.' : 'Card transaction, automatic', 'OM-4.1', 'readonly', 'Set by the offer type.') + '</div>' +
+        '<div class="fg" data-req="OM-1.6 OM-1.18 OM-1.2"><label for="ofDesc">' + req('Description') + '</label><textarea class="field textarea" id="ofDesc">' + esc(f.desc) + '</textarea></div>' +
+        '<div class="row3">' + inp('ofCb', isPromo(o) ? 'Discount % (with code)' : 'Cashback %', o.cb, isPromo(o) ? 'OM-1.1' : 'CL-3.4', 'inputmode="decimal"') + inp('ofCapTx', 'Cap per transaction (AED)', capTx(o), 'OM-8.7', 'inputmode="decimal"') + inp('ofCap', 'Cap per customer for the campaign (AED)', o.cap, 'CL-3.3', 'inputmode="decimal"') + inp('ofMin', 'Min Transaction Value (AED)', o.min, 'CL-3.5 OM-1.4', 'inputmode="decimal"') +
+        inp('ofRefund', 'Refund Window (days)', o.refund, 'CL-7.9', 'inputmode="numeric"') + sel('ofMode', req('Budget Mode'), ['Fixed Duration', 'Until Budget Exhausted'], o.mode, 'CL-3.11') + inp('ofBudget', req('Budget (AED)'), n0(o.budget), 'CL-3.11 OM-1.4 OM-1.16', 'inputmode="decimal"') + inp('ofStart', 'Start Date', o.from, 'OM-1.6', 'type="date"') + inp('ofEnd', 'End Date', o.to, 'OM-1.6', 'type="date"') + '</div>' +
+        '<div class="row2">' + sel('ofEx', 'Exclusivity', ['Exclusive', 'Semi-exclusive', 'Publicly available'], S.rv.ex, 'OM-8.6 MS-16') + inp('ofRestr', 'Restrictions', S.rv.restr, 'MS-16', 'placeholder="Channel, issuer, market or competitor"', 'Optional. Part of the offer, not a bank assignment.') + '</div>', '', 'OM-1.6 CL-11.3 CL-3.4 CL-3.5 CL-3.11 OM-2.1') +
+        promoPanel(o, false) + audiencePanel(o, false) + prioPanel(o) +
+        '<div class="hrow" data-req="OM-1.6 CL-11.3 OM-2.1 OM-2.8"><button class="btn" data-go="requests">Cancel</button><button class="btn" data-sheet="reject">Reject</button><span class="sp"></span><button class="btn pri" data-create="' + o.id + '">Create offer and send to banks</button></div>'
+      : o.st === 'Rejected' ? card('Rejection', '', tagB('CL-11.21'), '<p>Reason: the requested cashback is above the merchant’s agreed rate. Sent to the merchant on 04 Aug 2026 by Omar Haddad.</p>', '', 'CL-11.21') : '') +
+      '</div><aside class="stack">' + (edit ? card('Customer Preview', 'As customers will see it. Bank reviewers see the same preview.', tagB('OM-1.11'), phone(o, f), '', 'OM-1.11') : '') +
+      card('Change History', 'Who changed the request and when.', tagB('CL-11.21'), tl([['n', edit ? 'Review started' : 'Request submitted', edit ? 'Sara Khalil' : o.m + ' merchant admin', edit ? 'Today 09:02' : o.sub], ['n', 'Request submitted', o.m + ' merchant admin', o.sub]].slice(0, edit ? 2 : 1)), '', 'CL-11.21') + '</aside></div></div>';
+  }
+  /* Dispatched: In bank review, Offer scheduled, Offer live, Offer completed */
+  const live = o.st === 'Offer live';
+  const terms = isPromo(o) ? ['Discount of ' + o.cb + '% with the code on purchases of AED ' + o.min + ' or more.', 'One code for each customer. ' + o.m + ' validates the code at checkout.', 'Maximum discount of AED ' + capTx(o) + ' for each transaction and AED ' + o.cap + ' for each customer during the campaign.', 'Cashback is confirmed when the affiliate network reports the purchase, after the ' + o.refund + '-day refund window.', 'Limited time: ' + dmy(o.from) + ' to ' + dmy(o.to) + ', or until the codes are used.', 'Eligible card products: the card programmes each bank selects.'] : ['Cashback of ' + o.cb + '% on purchases of AED ' + o.min + ' or more.', 'Maximum cashback of AED ' + capTx(o) + ' for each transaction and AED ' + o.cap + ' for each customer during the campaign.', 'Excludes gift cards and purchases refunded within ' + o.refund + ' days.', 'Limited time: ' + dmy(o.from) + ' to ' + dmy(o.to) + ', or until the budget is used.', 'Eligible card products: the card programmes each bank selects.'];
+  const pc = o.used ? o.used / o.budget * 100 : 0;
+  return head(crumb, o.t, 'Submitted ' + o.sub + ' · Sent to ' + o.banks.length + (o.banks.length === 1 ? ' bank' : ' banks') + ', first on ' + o.disp + ' by ' + o.by, '', stBadge(o.st)) +
+    '<div class="content">' + legend() + '<div class="split"><div class="stack">' + banksCard(o) +
+    card('Offer Details', '', (live ? stBadge('Active') : '') + '<span class="badge out" data-req="' + (o.st === 'In bank review' ? 'OM-1.19' : 'OM-11.6 CL-11.23 CL-3.18 OM-1.19') + '">' + svg(I.lock).replace('<svg ', '<svg style="width:.75rem;height:.75rem" ') + (o.st === 'In bank review' ? 'Locked for editing' : 'Terms locked after bank review') + '</span>' + tagB('CL-3.18 CL-11.13 OM-1.19') + tagB('OM-8.7 CL-3.3'),
+      '<dl class="kv"><dt>Name</dt><dd>' + f.name + '</dd><dt>Merchant</dt><dd>' + o.m + '</dd><dt>Brand</dt><dd>' + o.brand + '</dd><dt>Offer type</dt><dd data-req="OM-1.1 OM-4.1">' + (isPromo(o) ? 'Promo code' : 'Card-linked') + '</dd><dt>Description</dt><dd style="font-weight:500">' + f.desc + '</dd><dt>Budget</dt><dd>' + aed(o.budget) + ' · ' + o.mode + '</dd><dt>' + (isPromo(o) ? 'Discount %' : 'Cashback %') + '</dt><dd>' + o.cb + '%</dd><dt>Cap per transaction</dt><dd data-req="OM-8.7">' + aed(capTx(o)) + '</dd><dt>Cap per customer for the campaign</dt><dd data-req="CL-3.3">' + aed(o.cap) + '</dd><dt>Min Transaction Value</dt><dd>' + aed(o.min) + '</dd><dt>Refund Window</dt><dd>' + o.refund + ' days</dd><dt>Start Date</dt><dd>' + dmy(o.from) + '</dd><dt>End Date</dt><dd>' + dmy(o.to) + '</dd><dt>Exclusivity</dt><dd data-req="OM-8.6 MS-16">' + o.ex + (o.restr ? ' <span class="muted sm" style="font-weight:500">' + esc(o.restr) + '</span>' : '') + '</dd><dt>Tenants (banks)</dt><dd data-req="OM-2.1">' + bnames(o).join(', ') + ' <span class="muted sm" style="font-weight:500">Status in Banks</span></dd><dt>Merchant IDs</dt><dd class="num">' + o.mids.join(', ') + '</dd><dt>Terminal IDs</dt><dd class="num">' + o.tids.join(', ') + '</dd></dl>' +
+      '<div class="stack" style="gap:.5rem"><p class="sm b">Terms &amp; Conditions</p><ol style="padding-left:1.25rem;list-style:decimal;font-size:.8125rem;display:flex;flex-direction:column;gap:.25rem">' + terms.map(t => '<li>' + esc(t) + '</li>').join('') + '</ol></div>' +
+      '<div class="stack" style="gap:.5rem" data-req="OM-1.18"><p class="sm b">Offer Attachments</p><div class="hrow">' + ['Cover', 'Logo'].map(a => '<span class="badge out" style="height:2rem;padding:0 .75rem">' + a + ' · ' + o.m.toLowerCase().replace(/[^a-z]/g, '') + '-' + a.toLowerCase() + '.png</span>').join('') + '</div></div>', '', 'CL-3.18 CL-11.13') +
+    promoPanel(o, true) + audiencePanel(o, true) + '</div><aside class="stack">' +
+    (o.used ? card('Budget Usage', 'Updated in real time.', tagB('OM-4.13'), '<div class="stack"><div class="hrow"><div class="meter" style="flex:1"><i class="' + (pc > 80 ? 'w' : '') + '" style="width:' + pc.toFixed(0) + '%"></i></div><b class="num">' + pc.toFixed(0) + '%</b></div><dl class="kv" style="grid-template-columns:8rem minmax(0,1fr)"><dt>Used</dt><dd>' + aed(o.used) + ' of ' + aed(o.budget) + '</dd><dt>Activations</dt><dd>' + n0(o.act) + '</dd><dt>Redemptions</dt><dd>' + n0(o.red) + '</dd></dl></div>', '', 'OM-4.13') : '') +
+    card('Approvals', 'Three approvals before go-live. Each bank gives its own approval.', tagB('CL-11.3'), '<div class="flow" style="flex-direction:column;align-items:stretch"><span class="done">' + o.m + ' submitted · ' + o.sub + '</span><span class="done">Lune operations · ' + o.by + ' · ' + o.disp + '</span>' + o.banks.map(b => '<span class="' + (b.st === 'In bank review' ? 'on' : b.st === 'Rejected' ? '' : 'done') + '">' + b.n + ' · ' + ({ 'In bank review': 'reviewing', Rejected: 'rejected' }[b.st] || 'approved') + '</span>').join('') + '</div>', '', 'CL-11.3') +
+    card('Version History', 'Versions sent to each bank, with user and time. Later changes never recalculate cashback that Pulse already recorded.', tagB('OM-1.9 CL-11.15 CL-3.18'), tl(o.banks.slice().reverse().map(b => ['n', 'Version 1 sent to ' + b.n, o.by, b.sent])), '', 'OM-1.9 CL-11.15 CL-3.18') + '</aside></div></div>';
+}
+
+/* ---------- 3. Merchants (real list and detail) ---------- */
+function pgMerchants() {
+  let body = '';
+  body =
+    card('Merchants', '', tagB('OM-3.1 OM-3.3 OM-3.8') + tagB('OM-3.2'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Region</th><th>Active</th><th data-req="OM-3.2">Compliance screening</th><th>Created</th><th data-req="OM-3.3"></th></tr></thead><tbody>' +
+      MERCHANTS.map(m => '<tr><td><button class="lnk" data-go="merchant/' + m.id + '">' + m.name + '</button><small>' + m.legal + '</small></td><td>' + m.region + '</td><td>' + stBadge(m.st) + '</td><td>' + stBadge(m.screen) + '</td><td class="num">' + m.created + '</td><td><div class="hrow">' +
+        (m.st === 'Pending approval' ? '<button class="btn pri" data-sheet="mact:' + m.id + ':Approve">Approve</button><button class="btn" data-sheet="mact:' + m.id + ':Reject">Reject</button>' : '<button class="btn ghost" data-go="merchant/' + m.id + '">Open</button>') + '</div></td></tr>').join('') + '</tbody></table></div>' +
+      '<p class="sm muted" data-req="OM-3.2">Lune operations records due-diligence and sanctions screening before a merchant is activated.</p>', '', 'OM-3.1 OM-3.3 OM-3.2 OM-3.8') +
+    '<div class="grid2">' + card('Audit History', 'Every merchant action, with the reason.', tagB('OM-3.3'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Merchant</th><th>Action</th><th>Reason</th><th>By</th></tr></thead><tbody>' + [['09 Nov 2026', '%Arabica', 'Screening passed', 'Due-diligence and sanctions screening recorded', 'Lina Matar'], ['06 Nov 2026', 'Subway', 'Access revoked', 'Compliance status changed', 'Omar Haddad'], ['28 Oct 2026', 'Expedia', 'Approved', 'Onboarding checks complete', 'Sara Khalil']].map(x => '<tr data-req="OM-3.3"><td class="num" style="white-space:nowrap">' + x[0] + '</td><td><b>' + x[1] + '</b></td><td>' + (x[2] === 'Access revoked' ? stBadge('Inactive').replace('Inactive', 'Access revoked') : esc(x[2])) + '</td><td class="wrap">' + esc(x[3]) + '</td><td style="white-space:nowrap">' + x[4] + '</td></tr>').join('') + '</tbody></table></div>', '', 'OM-3.3') +
+    planCard('Document Expiry Tracking', 'Track expiry dates of merchant compliance documents.', 'OM-3.2',
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Merchant</th><th>Document</th><th>Expires</th></tr></thead><tbody><tr><td>Subway</td><td>Trade licence</td><td>' + stBadge('Expired') + ' 30 Oct 2026</td></tr><tr><td>Lulu</td><td>Trade licence</td><td>14 Jan 2027</td></tr></tbody></table></div>') + '</div>';
+  return head('', 'Merchants', 'Invite merchants, approve them and manage their status and users.', '<button class="btn pri" data-sheet="invite">' + svg(I.plus) + 'Invite Merchant</button>') +
+    '<div class="content">' + legend() + body + '</div>';
+}
+/* Offers: the central offer pool (OM-2.1). Every offer, whatever its source. Sourced offers enter as "To validate" (OM-8.6, MS-16). */
+const DISP = ['In bank review', 'Offer scheduled', 'Offer live', 'Offer completed'];
+const srcSt = x => !x.val ? 'To validate' : x.banks.some(b => b.st === 'Live') ? 'Offer live' : x.banks.some(b => b.st === 'Approved') ? 'Offer scheduled' : x.banks.some(b => b.st === 'In bank review') ? 'In bank review' : 'Validated';
+const POOL = () => REQS.filter(o => DISP.includes(o.st)).map(o => ({ k: 'r', id: o.id, t: o.t, m: o.m, src: 'Merchant request', type: isPromo(o) ? 'Promo code' : 'Card-linked', ex: o.ex, st: o.st, banks: o.banks, d: o.disp }))
+  .concat(SOURCED.map((x, i) => ({ k: 's', i, id: x.id, t: x.t, m: x.m, src: x.src, type: x.promo ? 'Promo code' : 'Card-linked', ex: x.ex, st: srcSt(x), banks: x.banks, d: x.rec })));
+const findOffer = id => REQS.find(o => o.id === id) || SOURCED.find(x => x.id === id);
+const OSTAT = ['To validate', 'Validated', 'In bank review', 'Offer scheduled', 'Offer live', 'Offer completed'];
+const dnum = d => { const p = String(d || '').split(' '); return (p[2] || '') + String(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(p[1]) + 10) + (p[0] || ''); };
+function pgOffers() {
+  const f = S.of, q = f.q.trim().toLowerCase();
+  const base = POOL().filter(x => (!q || (x.t + ' ' + x.m + ' ' + x.id).toLowerCase().includes(q)) && (!f.src || x.src === f.src) && (!f.type || x.type === f.type) && (!f.bank || x.banks.some(b => b.n === f.bank)));
+  const L = base.filter(x => !f.st || x.st === f.st);
+  L.sort(f.sort === 'name' ? (a, b) => a.t.localeCompare(b.t) : f.sort === 'banks' ? (a, b) => b.banks.length - a.banks.length : (a, b) => dnum(b.d).localeCompare(dnum(a.d)));
+  const cnt = st => base.filter(x => x.st === st).length;
+  const exCell = x => x.st === 'To validate'
+    ? '<select class="trigger" data-ex="' + x.i + '" aria-label="Exclusivity for ' + esc(x.t) + '" style="width:9.5rem;height:2.25rem"><option value="">Select</option>' + ['Exclusive', 'Semi-exclusive', 'Publicly available'].map(e => '<option' + (x.ex === e ? ' selected' : '') + '>' + e + '</option>').join('') + '</select>'
+    : esc(x.ex || 'Not marked');
+  const act = x => x.st === 'To validate' ? '<button class="btn pri" data-validate="' + x.i + '" data-req="OM-8.6">Validate</button>'
+    : x.st === 'Offer completed' || x.banks.length >= BANKS.length ? ''
+    : '<button class="btn" data-sheet="sendbank:' + x.id + '" data-req="OM-2.1 MS-55">' + (x.banks.length ? 'Send to another bank' : 'Send to banks') + '</button>';
+  return head('', 'Offers', 'The central offer pool. Every card-linked offer, from a merchant request or from sourcing. Affiliate campaigns sit in the Affiliate Ledger. Lune operations sends each offer to one or more banks. Each bank chooses the programme when it approves. Each bank reviews it on its own.', legend()) +
+    '<div class="content">' +
+    card('Offer pool', '', tagB('OM-2.1 OM-1.14 OM-8.6 MS-16'),
+      '<div class="search" data-req="OM-1.14"><input class="field" id="ofq" type="search" placeholder="Search offer or merchant" aria-label="Search offer or merchant" value="' + esc(f.q) + '" autocomplete="off">' +
+      sel('ofsrc', '', [['', 'Source: All'], 'Merchant request', 'Direct merchant', 'Sourcing partner'], f.src, '', 'aria-label="Source" style="width:13rem"') +
+      sel('ofbank', '', [['', 'Bank: All']].concat(BANKS.map(b => [b.name, b.name])), f.bank, '', 'aria-label="Bank" style="width:11rem"') +
+      sel('ofsort', '', [['new', 'Sort: Newest first'], ['name', 'Sort: Offer name'], ['banks', 'Sort: Most banks']], f.sort, '', 'aria-label="Sort" style="width:12rem"') +
+      '<button class="btn ghost" data-ofreset>Reset filters</button></div>' +
+      '<div class="tabs" role="tablist" data-req="OM-1.14">' + [['', 'All', base.length]].concat(OSTAT.map(st => [st, st, cnt(st)])).map(t => '<button class="tab" role="tab" data-ofst="' + t[0] + '" aria-selected="' + (f.st === t[0]) + '">' + t[1] + ' <span class="muted">' + t[2] + '</span></button>').join('') + '</div>' +
+      '<div class="tbl-wrap"><table class="tbl pool"><thead><tr><th>Offer</th><th>Merchant</th><th>Source</th><th data-req="OM-8.6 MS-16">Exclusivity</th><th>Status</th><th data-req="OM-2.1">Banks</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+      (L.length ? L.map(x => '<tr' + (x.k === 'r' ? ' style="cursor:pointer" data-row="request/' + x.id + '"' : '') + ' data-req="OM-2.1 OM-1.14' + (x.k === 's' ? ' OM-8.6' : '') + '"><td>' + (x.k === 'r' ? '<button class="lnk" data-go="request/' + x.id + '">' + x.t + '</button>' : '<b>' + x.t + '</b>') + '<small>' + x.id.toUpperCase() + '</small></td><td>' + x.m + '</td><td>' + x.src + '</td><td data-req="OM-8.6 MS-16">' + exCell(x) + '</td><td>' + stBadge(x.st) + '</td><td class="wrap" data-req="OM-2.1">' + (x.banks.length ? '<b>' + x.banks.length + '</b> · ' + bnames(x).join(', ') : '<span class="muted">None yet</span>') + '</td><td>' + act(x) + '</td></tr>').join('')
+        : '<tr><td colspan="7" class="muted">No offers match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted"><span>Total ' + L.length + '</span><span class="sp"></span><span>Page 1 of 1</span></div>' +
+      '<p class="sm muted" data-req="OM-8.6 MS-16">Lune operations validates each sourced offer and marks its exclusivity before it goes to a bank. Exclusivity belongs to the offer.</p>', '', 'OM-2.1 OM-1.14 OM-8.6') +
+    '</div>';
+}
+function pgMerchant(id) {
+  const m = MERCHANTS.find(x => x.id === id) || MERCHANTS[0];
+  const d = m.web;
+  const users = m.brands.length ? MUSERS.map(u => [u[0], u[1].replace('{d}', d), u[2], m.st === 'Inactive' ? 'Deactivated' : u[3], u[4] < m.created ? m.created : u[4]]) : [['Owner (invited)', 'owner@' + d, 'Admin', 'Invited', m.created]];
+  const act = m.st === 'Active';
+  return head('<button data-go="merchants">Merchants</button> / ' + m.name, m.name, m.legal, '', stBadge(m.st)) +
+    '<div class="content">' + legend() + '<div class="split"><div class="stack">' +
+    card('Merchant Details', '', tagB('OM-3.1') + '<button class="btn ghost" data-toast="Edit merchant details (prototype).">Edit</button>', '<dl class="kv"><dt>Region</dt><dd>' + m.region + '</dd><dt>Website</dt><dd>' + d + '</dd><dt>Created</dt><dd>' + m.created + '</dd><dt data-req="OM-3.2">Compliance screening</dt><dd>' + stBadge(m.screen) + '</dd></dl>', '', 'OM-3.1 OM-3.2') +
+    card('Claimed Brands', 'Each brand belongs to one merchant. MIDs and TIDs are unique.', tagB('OM-3.5 CL-13.3') + tagB('CL-13.1 CL-13.2'),
+      (m.brands.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Brand</th><th>MIDs</th><th>TIDs</th><th>Channel</th><th></th></tr></thead><tbody>' + m.brands.map((b, i) => '<tr data-req="OM-3.5 CL-13.2"><td><b>' + b[0] + '</b></td><td class="num">' + b[1] + '</td><td class="num">' + b[2] + '</td><td>' + b[3] + '</td><td>' + (b[4] ? '<span class="badge out">' + svg(I.lock).replace('<svg ', '<svg style="width:.75rem;height:.75rem" ') + 'IDs locked · In bank review</span>' : '<button class="btn" data-toast="Brand released. Another merchant can claim it.">Release</button>') + '</td></tr>').join('') + '</tbody></table></div>' : '<p class="sm muted">No brands claimed yet.</p>') +
+      '<div class="hrow"><button class="btn" data-toast="Brand claimed for ' + esc(m.name) + '.">' + svg(I.plus) + 'Claim brand</button></div>', '', 'OM-3.5 CL-13.3 CL-13.1 CL-13.2') +
+    card('Users', 'Merchant portal users. Each user sees only this merchant.', tagB('OM-3.10'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th><span class="sr">Select</span></th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody>' + users.map((u, i) => '<tr data-req="OM-3.10"><td><input type="checkbox" aria-label="Select ' + esc(u[0]) + '" style="width:1rem;height:1rem;accent-color:var(--primary)"' + (u[3] === 'Deactivated' ? ' checked' : '') + '></td><td><b>' + u[0] + '</b></td><td>' + u[1] + '</td><td>' + u[2] + '</td><td>' + stBadge(u[3]) + '</td><td class="num">' + u[4] + '</td><td><div class="hrow"><button class="btn ghost" data-toast="Edit user (prototype).">Edit</button>' + (u[3] === 'Active' ? '<button class="btn ghost" data-toast="User deactivated.">Deactivate</button>' : '') + '<button class="btn ghost" data-toast="User deleted.">Delete</button></div></td></tr>').join('') + '</tbody></table></div>' +
+      '<div class="hrow"><button class="btn" data-toast="Invitation sent.">' + svg(I.plus) + 'Invite User</button><button class="btn" data-toast="Selected users reactivated.">Reactivate Selected</button></div>', '', 'OM-3.10') +
+    '</div><aside class="stack">' +
+    (act ? card('Revoke Access', 'Deactivates this merchant and all associated users. All active API tokens are revoked immediately.', tagB('OM-3.3 OM-3.2'), '<button class="btn" style="color:var(--destructive);border-color:var(--error-subtle)" data-sheet="mact:' + m.id + ':Revoke access">Revoke access</button>', '', 'OM-3.3 OM-3.2')
+      : m.st === 'Inactive' ? card('Reactivate Merchant', 'Restore access for this merchant after its compliance status changes.', tagB('OM-3.3 OM-3.2'), '<button class="btn pri" data-sheet="mact:' + m.id + ':Reactivate">Reactivate</button>', '', 'OM-3.3 OM-3.2')
+      : card('Onboarding Approval', 'Approve or reject this merchant with a reason.', tagB('OM-3.3'), '<div class="hrow"><button class="btn pri" data-sheet="mact:' + m.id + ':Approve">Approve</button><button class="btn" data-sheet="mact:' + m.id + ':Reject">Reject</button></div>', '', 'OM-3.3')) +
+    card('Audit History', '', tagB('OM-3.3'), tl(m.st === 'Inactive' ? [['b', 'Access revoked', 'Reason: compliance status changed. Omar Haddad.', '06 Nov 2026'], ['n', 'Merchant approved', 'Sara Khalil', m.created]] : [['n', 'Merchant approved', 'Reason: onboarding checks complete. Sara Khalil.', m.created]]), '', 'OM-3.3') + '</aside></div></div>';
+}
+
+/* ---------- 4. Portfolio (RFP addition) ---------- */
+function bankTable(readOnly) {
+  return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Bank (tenant)</th><th>Programmes</th><th class="r">Live campaigns</th><th class="r">Customers</th><th>Daily cashback run</th><th class="r">Matched</th><th class="r">Alerts</th></tr></thead><tbody>' +
+    BANKS.map(b => '<tr><td><b>' + b.name + '</b><small>' + b.tid + '</small></td><td class="wrap">' + (PROGS.filter(p => p.bank === b.name).map(p => esc(p.name) + (p.st === 'Suspended' ? ' <small>Suspended</small>' : '')).join('<br>') || esc(b.prog)) + '</td><td class="r num">' + b.live + '</td><td class="r num">' + n0(b.enrolled) + '</td><td><span class="dot ' + (b.run[0] === 'ok' ? '' : 'w') + '"></span>' + b.run[1] + '</td><td class="r num">' + b.matched + '%</td><td class="r num">' + (b.alerts ? '<span class="badge warn">' + b.alerts + '</span>' : '0') + '</td></tr>').join('') + '</tbody></table></div>';
+}
+function budgetCard(readOnly, tags) {
+  const live = REQS.filter(o => o.used && o.st === 'Offer live');
+  return card('Offers and Budget Usage', 'Status, validity, stores, activations, redemptions and budget used for each offer, in real time.', tags || (tagB('OM-4.13 CL-11.18 CL-14.11') + tagB('OM-1.14')),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Offer</th><th>Banks</th><th>Status</th><th>Validity</th><th class="r">Stores</th><th class="r">Activations</th><th class="r">Redemptions</th><th>Budget used</th></tr></thead><tbody>' +
+    live.map(o => { const pc = o.used / o.budget * 100; return '<tr><td><b>' + o.t + '</b><small>' + o.cb + '% cashback</small></td><td style="white-space:nowrap">' + bnames(o).join('<br>') + '</td><td>' + stBadge(o.st) + '</td><td class="num sm">' + dmy(o.from) + ' to ' + dmy(o.to) + '</td><td class="r num">' + o.stores + '</td><td class="r num">' + n0(o.act) + '</td><td class="r num">' + n0(o.red) + '</td><td style="min-width:11rem"><div class="hrow"><div class="meter" style="flex:1"><i class="' + (pc > 80 ? 'w' : '') + '" style="width:' + pc.toFixed(0) + '%"></i></div><span class="num sm b">' + pc.toFixed(0) + '%</span></div><small>' + aed(o.used) + ' of ' + aed(o.budget) + '</small></td></tr>'; }).join('') + '</tbody></table></div>', '', 'OM-4.13 CL-11.18 CL-14.11 OM-1.14');
+}
+function pgPortfolio() {
+  const tot = BANKS.reduce((a, b) => a + b.enrolled, 0);
+  return head('', 'Portfolio', 'All banks in the UAE market, with service monitoring for each bank.', legend()) +
+    '<div class="content">' +
+    '<div class="mrow">' + mc('Banks live', '3', 'One tenant for each bank', 'LAF-1 LAF-9') + mc('Live campaigns', '28', '4 requests in review', 'OM-7.1') + mc('Customers', n0(tot), 'All tenants', 'OM-7.1') + mc('Activations, last 30 days', '61,204', '+8.2% on prior period', 'OM-7.1') + mc('Cashback earned, last 30 days', 'AED 412,860', 'Budget used 58%', 'OM-7.1') + '</div><div class="tags">' + tagB('LAF-1 LAF-9') + tagB('OM-7.1') + '</div>' +
+    budgetCard(false) +
+    card('Service Monitoring per Bank', 'The daily cashback run and decision outcomes for each tenant.', tagB('LAF-2 LAF-9') + tagB('LAF-180 CL-10.10'), bankTable(false) +
+      '<p class="sm muted" data-req="LAF-9">Each bank is a separate tenant. Your access across tenants is logged.</p>', '', 'LAF-2 LAF-9 LAF-180 CL-10.10') +
+    '<div class="grid2">' + card('Processing Alerts', 'Failed processing, delayed cashback runs, data-quality problems and rejection reasons.', tagB('CL-9.10 CL-13.10'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Time</th><th>Bank or offer</th><th>Alert</th><th>Status</th></tr></thead><tbody>' + [['Today 06:05', 'Oasis Bank', 'Daily cashback run failed', 'Retry 1 of 3'], ['Yesterday', 'Subway · Fresh Lunch Cashback', '212 rejections: ' + rc('merchant_mismatch'), 'EX-3388 opened']].map(x => '<tr data-req="CL-9.10 CL-13.10"><td class="num" style="white-space:nowrap">' + x[0] + '</td><td><b>' + x[1] + '</b></td><td class="wrap">' + x[2] + '</td><td class="wrap">' + x[3] + '</td></tr>').join('') + '</tbody></table></div>', '', 'CL-9.10 CL-13.10') +
+    card('Decision Outcomes, Last Run', 'Pulse counts each decision outcome and reason code.', tagB('CL-10.10'),
+      '<div class="hbars">' + [['Qualified', 92.4, '1.09M'], ['No matching offer', 5.1, '60.2K'], [rc('not_activated'), 1.9, '22.4K'], [rc('merchant_mismatch'), .6, '7.1K']].map(x => '<div class="hb"><span class="lab">' + x[0] + '</span><span class="track"><i style="width:' + x[1] + '%"></i></span><span class="val num">' + x[2] + '<small>' + x[1] + '%</small></span></div>').join('') + '</div>', '', 'CL-10.10') + '</div>' +
+    planCard('Budget Threshold Alerts', 'Alerts when an offer reaches a budget threshold.', 'CL-14.11',
+      '<div class="row3">' + ['80%', '90%', '100%'].map((t, i) => '<label class="chk"><input type="checkbox" checked><span>Alert at ' + t + ' of budget<small>' + ['Notify Lune operations', 'Notify Lune operations and the bank', 'Notify Lune operations, the bank and the merchant'][i] + '</small></span></label>').join('') + '</div>') +
+    '</div>';
+}
+
+
+/* ---------- 3b. Affiliate Ledger (RFP addition): one ledger for every affiliate network. Lune assigns each campaign to banks and programmes. ---------- */
+// Network, connection, last sync, API name, what syncs, sub-ID parameter. Facts from each network's developer docs (13 Nov 2026). Generic where the docs give nothing.
+const NETS = [
+  ['Admitad', 'API', 'Today 06:00', 'Admitad API', 'Programmes, deeplinks, coupons and statistics', 'subid'],
+  ['TakeAds', 'API', 'Today 05:45', 'Take API', 'Affiliate links, coupons, clicks and actions', 'subId']];
+// Canonical affiliate set. The ledger holds affiliate networks only. Mimojo and LUX Rewards source card-linked merchants, so they are not here (product lead, 13 Nov 2026).
+// Pulse source uses pre-rebrand names: Amazon = Sharaf DG, Namshi = H&M, Noon = NiceOne.
+// Nova Bank rows must match LuneHub, Campaign Manager, Online Campaigns (src/lunehub/ext.js S.aff).
+const AFF = [
+  { id: 'AL-301', net: 'Admitad', m: 'Amazon', c: 'Electronics Online', type: 'Link', code: '', rw: '6% cashback', com: '8% of sale', from: '2026-01-15', to: '2027-01-31', as: [['Nova Bank', 'Nova Rewards', 'On'], ['Gulf Demo Bank', 'Gulf Cashback', 'On']], clicks: 18420, hold: 90 },
+  { id: 'AL-302', net: 'Admitad', m: 'Namshi', c: '15% Off With Code', type: 'Code', code: 'Single-use codes', rw: '15% off with code', com: '7% of sale', from: '2026-02-01', to: '2027-01-15', as: [['Nova Bank', 'Nova Everyday Cashback', 'On']], clicks: 9310, hold: 60, qty: 5000, rem: 1842 },
+  { id: 'AL-303', net: 'TakeAds', m: 'Noon', c: '10% Off With Code', type: 'Code', code: 'Static code', rw: '10% off with code', com: '8% of sale', from: '2026-03-01', to: '2027-02-28', as: [['Nova Bank', 'Nova Rewards', 'Off'], ['Gulf Demo Bank', 'Gulf Cashback', 'On']], clicks: 2105, hold: 120, qty: 8000, rem: 241 },
+];
+const SUBID = '{tenant_id}_{programme_id}_{customer_pseudonym}';
+const affOf = id => AFF.find(a => a.id === id);
+const rate = v => +String(v).replace(/[^0-9.]/g, '');
+/* Attributed affiliate purchases (CL-3.1, OM-4.11, LAF-113, OM-6.8). An affiliate purchase is not card-linked.
+   The network reports the sale. Pulse attributes it by the sub-ID that Pulse put on the tracking link when the
+   customer tapped the offer. Production holds thousands of rows, so the sample set is generated from a fixed seed.
+   A reward posts only after the network confirms the commission (OM-4.11). Holds run 30 to 180 days, and some
+   merchants take up to a year, so the hold of each campaign sets when the reward becomes payable. */
+const APUR = (() => {
+  let s = 20261113;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const hex = n => { let o = ''; for (let i = 0; i < n; i++) o += '0123456789ABCDEF'[Math.floor(rnd() * 16)]; return o; };
+  const CUS = ['CUS-7F3A21', 'CUS-88D2B7', 'CUS-2B71F0', 'CUS-5C0D33', 'CUS-41E9A6'].concat(Array.from({ length: 900 }, () => 'CUS-' + hex(6)));
+  const pick = () => (rnd() < 0.14 ? CUS[Math.floor(rnd() * 5)] : CUS[Math.floor(rnd() * CUS.length)]);
+  const CANC = ['The customer returned the order.', 'The merchant cancelled the order.', 'The network found a duplicate report.', 'The order was never paid.'];
+  const END = Date.UTC(2026, 10, 12);
+  const day = (n) => new Date(END - n * 86400000).toISOString().slice(0, 10);
+  const plus = (iso, d) => { const [y, m, dd] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd + d)).toISOString().slice(0, 10); };
+  const rows = [];
+  AFF.forEach(a => {
+    const live = a.as.filter(x => x[2] === 'On'), com = rate(a.com), rw = rate(a.rw);
+    if (!live.length) return;
+    for (let d = 0; d < 180; d++) {
+      const iso = day(d), k = Math.floor(rnd() * 2.6);
+      for (let j = 0; j < k; j++) {
+        const who = live[Math.floor(rnd() * live.length)], val = 80 + Math.floor(rnd() * 1420), r = rnd();
+        const row = { d: iso, net: a.net, cid: a.id, m: a.m, c: a.c, type: a.type, bank: who[0], prog: who[1], cus: pick(), val: val, com: Math.round(val * com / 100), rw: Math.round(val * rw / 100), ref: '', why: '', due: '' };
+        if (r < 0.035) { row.st = 'In review'; row.bank = ''; row.prog = ''; row.cus = ''; row.rw = 0; row.why = 'The sub-ID does not resolve to a bank and a customer. No reward posts.'; }
+        else if (d > a.hold) { row.st = rnd() < 0.94 ? 'Confirmed' : 'Cancelled'; }
+        else { row.st = rnd() < 0.93 ? 'Pending' : 'Cancelled'; row.due = plus(iso, a.hold); }
+        if (row.st === 'Cancelled') { row.why = CANC[Math.floor(rnd() * CANC.length)]; row.rw = 0; }
+        rows.push(row);
+      }
+    }
+  });
+  rows.sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
+  let n = 410001;
+  for (let i = rows.length - 1; i >= 0; i--) if (rows[i].st !== 'In review') rows[i].ref = RWD(n++);
+  return rows;
+})();
+/* Attributed sales on each campaign row are the reported sales of the last 30 days that resolved to a bank. */
+AFF.forEach(a => { a.sales = APUR.filter(x => x.cid === a.id && x.bank && x.d >= '2026-10-14').reduce((t, x) => t + x.val, 0); });
+const APST = ['Pending', 'Confirmed', 'Cancelled', 'In review'];
+const apWait = x => x.st === 'Pending' ? 'Waiting for ' + x.net + ' to confirm the sale. Hold of ' + affOf(x.cid).hold + ' days, by ' + dmy(x.due) + '.' : x.why;
+const onOff = st => '<span class="badge ' + (st === 'On' ? 'ok' : 'out') + '">' + st + '</span>';
+function pgAffiliate() {
+  const T = [['campaigns', 'Campaigns and networks'], ['purchases', 'Attributed purchases']];
+  return head('', 'Affiliate Ledger', 'Affiliate campaigns from every network, the banks and programmes they run for, and every purchase the networks report.', legend()) +
+    '<div class="content">' + tabs('a', T, S.atab) + (S.atab === 'purchases' ? affPurchases() : affCampaigns()) + '</div>';
+}
+function affCampaigns() {
+  const f = S.af, q = f.q.trim().toLowerCase();
+  const L = AFF.filter(a => (!f.net || a.net === f.net) && (!f.bank || a.as.some(x => x[0] === f.bank)) && (!q || (a.id + ' ' + a.m + ' ' + a.c).toLowerCase().includes(q)));
+  const clicks = L.reduce((t, a) => t + a.clicks, 0), sales = L.reduce((t, a) => t + a.sales, 0);
+  return '<div class="mrow">' + mc('Campaigns', L.length, 'From ' + NETS.length + ' networks', 'CL-3.1') + mc('Assigned to banks', L.filter(a => a.as.length).length, 'One campaign can go to many banks', 'OM-2.1') + mc('Clicks, last 30 days', n0(clicks), 'Tracked by sub-ID', 'OM-6.8') + mc('Attributed sales, last 30 days', aed(sales), 'Reported by the networks', 'CL-3.1') + '</div>' +
+    card('Affiliate Campaigns', '', tagB('CL-3.1 OM-2.1') + tagB('OM-4.10 OM-4.11 MS-17'),
+      '<div class="search"><input class="field" id="afq" type="search" placeholder="Search campaign, merchant or ID" aria-label="Search campaign, merchant or ID" value="' + esc(f.q) + '" autocomplete="off">' +
+      sel('afnet', '', [['', 'Network: All']].concat(NETS.map(n => [n[0], n[0]])), f.net, '', 'aria-label="Network" style="width:12rem"') +
+      sel('afbank', '', [['', 'Bank: All']].concat(BANKS.map(b => [b.name, b.name])), f.bank, '', 'aria-label="Bank" style="width:12rem"') +
+      '<button class="btn ghost" data-afreset>Reset filters</button></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Campaign</th><th>Network</th><th>Type</th><th>Reward</th><th>Valid</th><th data-req="OM-2.1">Banks and programmes</th><th class="r" data-req="OM-6.8">Clicks</th><th class="r">Attributed sales</th></tr></thead><tbody>' +
+      (L.length ? L.map(a => '<tr data-req="CL-3.1 OM-2.1' + (a.type === 'Code' ? ' OM-4.10 OM-4.11' : '') + '" style="cursor:pointer" data-afrow="' + a.id + '"><td style="min-width:11rem"><button class="lnk" data-sheet="aff:' + a.id + '">' + a.m + ' · ' + a.c + '</button><small>' + a.id + '</small></td><td>' + a.net + '<small>' + NETS.find(n => n[0] === a.net)[1] + '</small></td><td style="white-space:nowrap">' + (a.type === 'Code' ? 'Promo code<small>' + a.code + '</small>' : 'Tracking link') + '</td><td>' + a.rw + '<small>Commission ' + a.com + '</small></td><td class="num sm">' + dmy(a.from) + '<small>to ' + dmy(a.to) + '</small></td>' +
+        '<td data-req="OM-2.1" style="min-width:12rem">' + (a.as.length ? a.as.map(x => '<div class="hrow" style="justify-content:space-between;gap:.5rem;padding:.125rem 0"><span><b>' + x[0] + '</b><small>' + x[1] + '</small></span>' + onOff(x[2]) + '</div>').join('') : '<span class="muted">Not assigned</span>') + '</td>' +
+        '<td class="r num" data-req="OM-6.8">' + n0(a.clicks) + '</td><td class="r num">' + aed(a.sales) + '</td></tr>').join('')
+        : '<tr><td colspan="8" class="muted">No campaigns match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted"><span>Showing ' + n0(L.length) + ' of ' + n0(AFF.length) + ' campaigns</span></div>', '', 'CL-3.1 OM-2.1 OM-4.10 OM-4.11 MS-17') +
+    card('Network Connections', '', tagB('OM-4.11 OM-10.4') + tagB('OM-8.15'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Network</th><th>Connection</th><th>Syncs</th><th>Sub-ID parameter</th><th class="r">Campaigns</th><th>Last sync</th><th>Status</th><th></th></tr></thead><tbody>' +
+      NETS.map(n => '<tr data-req="OM-4.11 OM-10.4 OM-8.15"><td><b>' + n[0] + '</b></td><td>API<small>' + n[3] + '</small></td><td class="wrap" style="min-width:12rem">' + n[4] + '</td><td>' + (n[5] ? '<code>' + n[5] + '</code>' : '<span class="muted">Set at connection</span>') + '</td><td class="r num">' + AFF.filter(a => a.net === n[0]).length + '</td><td class="num">' + n[2] + '</td><td>' + stBadge('Active') + '</td><td><button class="btn ghost" data-toast="' + n[0] + ': sync started.">Sync now</button></td></tr>').join('') + '</tbody></table></div>' +
+      '<p class="sm muted" data-req="OM-8.15">Lune names every network it sources from and stays accountable for the offer and the reward.</p>', '', 'OM-4.11 OM-10.4 OM-8.15');
+}
+/* Attributed purchases: the record of what customers actually bought through an affiliate campaign (CL-3.1, OM-4.11). */
+function affPurchases() {
+  const f = S.ap, q = f.q.trim().toLowerCase();
+  const L = APUR.filter(x => (!f.net || x.net === f.net) && (!f.bank || x.bank === f.bank) && (!f.st || x.st === f.st) && (!q || (x.ref + ' ' + x.cus).toLowerCase().includes(q)));
+  const sum = (k, st) => L.filter(x => !st || x.st === st).reduce((t, x) => t + x[k], 0);
+  const posted = L.filter(x => x.st === 'Confirmed' && x.type === 'Link').reduce((t, x) => t + x.rw, 0);
+  const per = 12, pages = Math.max(1, Math.ceil(L.length / per)), page = Math.min(Math.max(1, f.page), pages), first = (page - 1) * per, V = L.slice(first, first + per);
+  /* Attribution (OM-6.8, OM-4.11): a tracking-link purchase is attributed by the sub-ID Pulse adds on the click. A promo-code purchase is attributed by the code the network reports. */
+const SUBP = { Admitad: 'subid', TakeAds: 'subId' };
+const attrCell = x => {
+  const c = AFF.find(a => a.id === x.cid) || {};
+  if (!x.cus) return '<span class="muted">Sub-ID did not resolve</span>';
+  const tag = (x.bank || '').toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+  const prog = (x.prog || '').toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+  if (c.type === 'Code') {
+    const base = (c.m || 'CODE').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+    const code = c.code && /single/i.test(c.code) ? base + '-' + String(x.ref || '').slice(-5) : base + '15';
+    return '<span class="num">' + code + '</span><small>Promo code</small>';
+  }
+  return '<span class="num">' + tag + '_' + prog + '_' + String(x.cus || '').replace('CUS-', '') + '</span><small>' + (SUBP[x.net] || 'sub-ID') + '</small>';
+};
+const rewCell = x => x.st === 'Cancelled' ? '<span class="muted">Removed</span>' : x.st === 'In review' ? '<span class="muted">No reward</span>'
+    : aed(x.rw) + '<small>' + (x.type === 'Code' ? 'Discount at checkout' : 'Cashback on confirmation') + '</small>';
+  return '<div class="mrow">' +
+    mc('Sales reported', aed(sum('val')), 'Reported by the networks', 'CL-3.1 OM-8.15') +
+    mc('Commission pending', aed(sum('com', 'Pending')), 'The network has not confirmed it', 'OM-4.11') +
+    mc('Commission confirmed', aed(sum('com', 'Confirmed')), 'The network confirmed the sale', 'OM-4.11') +
+    mc('Customer rewards posted', aed(posted), 'Cashback on confirmed sales', 'CL-3.1 LAF-113') + '</div>' +
+    card('Attributed Purchases', 'One row for each purchase a network reported. Pulse attributes it by the sub-ID on the tracking link or by the promo code, not by the card.', tagB('CL-3.1 OM-4.11') + tagB('LAF-113') + tagB('OM-6.8'),
+      '<div class="search"><input class="field" id="apq" type="search" placeholder="Search reward reference or customer" aria-label="Search reward reference or customer" value="' + esc(f.q) + '" autocomplete="off">' +
+      sel('apnet', '', [['', 'Network: All']].concat(NETS.map(n => [n[0], n[0]])), f.net, '', 'aria-label="Network" style="width:12rem"') +
+      sel('apbank', '', [['', 'Bank: All']].concat(BANKS.map(b => [b.name, b.name])), f.bank, '', 'aria-label="Bank" style="width:12rem"') +
+      sel('apst', '', [['', 'State: All']].concat(APST.map(x => [x, x])), f.st, '', 'aria-label="State" style="width:11rem"') +
+      '<button class="btn ghost" data-apreset>Reset filters</button></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Reported</th><th>Network</th><th>Campaign</th><th data-req="OM-2.1">Bank and programme</th><th data-req="OM-6.8">Customer</th><th data-req="OM-6.8 OM-4.11">Attributed by</th><th class="r">Order value</th><th class="r">Commission</th><th class="r">Customer reward</th><th data-req="LAF-113">Reward reference</th><th>State</th></tr></thead><tbody>' +
+      (V.length ? V.map(x => '<tr data-req="CL-3.1 OM-4.11"><td class="num" style="white-space:nowrap">' + dmy(x.d) + '</td><td>' + x.net + '</td><td style="min-width:11rem"><b>' + x.c + '</b><small>' + x.m + ' · ' + x.cid + '</small></td>' +
+        '<td class="wrap" style="min-width:9rem">' + (x.bank ? '<b>' + x.bank + '</b><small>' + x.prog + '</small>' : '<span class="muted">Unresolved</span>') + '</td>' +
+        '<td class="num">' + (x.cus || '<span class="muted">Unresolved</span>') + '</td><td style="min-width:11rem">' + attrCell(x) + '</td><td class="r num">' + aed(x.val) + '</td><td class="r num">' + aed(x.com) + '</td><td class="r num">' + rewCell(x) + '</td>' +
+        '<td data-req="LAF-113" style="white-space:nowrap">' + (x.ref ? '<span class="num">' + x.ref + '</span>' : '<span class="muted">None</span>') + '</td>' +
+        '<td class="wrap" style="min-width:14rem">' + stBadge(x.st) + (apWait(x) ? '<small>' + esc(apWait(x)) + '</small>' : '') + '</td></tr>').join('')
+        : '<tr><td colspan="10" class="muted">No purchases match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted"><span>' + (L.length ? 'Showing ' + n0(first + 1) + ' to ' + n0(first + V.length) + ' of ' + n0(L.length) + ' purchases' : 'Showing 0 of 0 purchases') + '</span><span class="sp"></span>' +
+      '<button class="btn ghost" data-appage="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>Previous</button><span>Page ' + n0(page) + ' of ' + n0(pages) + '</span>' +
+      '<button class="btn ghost" data-appage="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>' +
+      '<p class="sm muted" data-req="OM-4.11 LAF-113">A reward posts only after the network confirms the commission. Holds run 30 to 180 days, and some merchants take up to a year. A promo-code discount is given at the merchant checkout, so Pulse records it but does not post it. Attributed sales on the Campaigns tab are the reported sales of the last 30 days that resolved to a bank.</p>', '', 'CL-3.1 OM-4.11 LAF-113 OM-6.8');
+}
+function affSheet(a) {
+  const banks = BANKS.map(b => ({ b, ps: PROGS.filter(p => p.bank === b.name) }));
+  return '<div class="tags">' + tagB('CL-3.1 OM-2.1') + (a.type === 'Code' ? tagB('OM-4.10 OM-4.11 MS-17') : '') + '</div>' +
+    '<dl class="kv"><dt>Network</dt><dd>' + a.net + ' <span class="muted sm" style="font-weight:500">' + (NETS.find(n => n[0] === a.net)[1] === 'API' ? 'Connected by API' : 'Connected by feed file') + '</span></dd><dt>Merchant</dt><dd>' + a.m + '</dd><dt>Campaign</dt><dd>' + a.c + ' <span class="muted sm" style="font-weight:500">' + a.id + '</span></dd><dt>Type</dt><dd data-req="CL-3.1' + (a.type === 'Code' ? ' OM-4.10' : '') + '">' + (a.type === 'Code' ? 'Promo code, ' + a.code.toLowerCase() : 'Tracking link') + '</dd><dt>Reward</dt><dd>' + a.rw + '</dd><dt>Commission</dt><dd>' + a.com + '</dd><dt>Valid</dt><dd>' + dmy(a.from) + ' to ' + dmy(a.to) + '</dd></dl>' +
+    inp('afSub', 'Sub-ID pattern', SUBID, 'OM-6.8 CL-3.1', 'readonly', 'Lune generates the tracking link when the customer taps the offer. Lune adds the sub-ID to it.' + (NETS.find(n => n[0] === a.net)[5] ? ' ' + a.net + ' gets it in ' + NETS.find(n => n[0] === a.net)[5] + '.' : '')) +
+    '<dl class="kv" data-req="OM-6.8 CL-3.1"><dt>Example sub-ID</dt><dd class="num">nova-bank-ae_nova_CUS-7F3A21</dd><dt>Customer ID</dt><dd>Pseudonymised. The network never gets the customer name or card.</dd><dt data-req="LAF-113">Reward reference</dt><dd data-req="LAF-113">Each attributed purchase creates one reward reference, for example <span class="num">RWD-2026-410288</span>. It links the network report to the reward, so Lune reconciles both sides.</dd></dl>' +
+    '<fieldset class="fg" data-req="OM-2.1 CL-11.3"><legend class="flabel">Banks and programmes</legend><div class="tchk" style="grid-template-columns:minmax(0,1fr)">' +
+    banks.map(({ b, ps }) => ps.map(p => { const k = b.name + '|' + p.name, cur = a.as.find(x => x[0] === b.name && x[1] === p.name), off = p.st === 'Suspended';
+      return '<label class="tck"><input type="checkbox" data-afpick="' + esc(k) + '"' + (S.afPick.includes(k) ? ' checked' : '') + (off ? ' disabled' : '') + '><span><b>' + b.name + ' · ' + p.name + '</b><small>' + b.tid + (off ? ' · Programme suspended' : cur ? ' · The bank has it ' + cur[2].toLowerCase() : ' · Not assigned') + '</small></span></label>'; }).join('')).join('') +
+    '</div><p class="fhint">Each bank turns the campaign on or off for its customers in LuneHub.</p></fieldset>';
+}
+
+/* ---------- 3c. Redemption Catalogue (RFP addition): supplier-initiated supply.
+   Cosmo Points and YouGotaGift run their own catalogues. Lune manages the integration, holds the normalised
+   item record and sets which catalogues are active for each bank and programme with issuer approval.
+   RC-17 to RC-22, RC-24, RC-41, RC-61, RC-71, RC-72. ---------- */
+const SUPL = [
+  { id: 'cosmo', name: 'Cosmo Points', conn: 'API', fulfils: 'Experiences, merchandise', mkts: 'UAE, KSA', avail: 'Live API check', stage: 'Activated 04 Sep 2026', sync: 'Today 06:10', st: 'Live' },
+  { id: 'ygg', name: 'YouGotaGift', conn: 'API', fulfils: 'Gift cards', mkts: 'UAE, KSA', avail: 'Live API check', stage: 'Activated 21 Aug 2026', sync: 'Today 06:12', st: 'Live' }
+];
+const supOf = id => SUPL.find(x => x.id === id) || {};
+/* One normalised item record for each supplier item: identifiers, market, category, points price, money value,
+   availability and effective dates (RC-21, RC-24). A real supplier catalogue holds thousands of items across
+   markets, categories and denominations, so the sample set is generated from a fixed seed. */
+const MKTS = ['UAE', 'KSA'];
+const CATS = ['Gift cards', 'Experiences', 'Merchandise'];
+const CITEMS = (() => {
+  let s = 20261113;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const pk = a => a[Math.floor(rnd() * a.length)];
+  const FROMS = ['2026-01-01', '2026-02-01', '2026-03-01', '2026-05-01', '2026-06-01', '2026-07-01', '2026-09-01'];
+  const mk2 = m => (m === 'KSA' ? 'SA' : 'AE');
+  const code = t => t.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w.slice(0, 3).toUpperCase()).join('');
+  const rows = [];
+  let n = 7001;
+  const add = (sup, sku, name, cat, mkt, val) => {
+    const r = rnd(), av = r < 0.88 ? 'Available' : r < 0.95 ? 'Out of stock' : 'Suspended';
+    rows.push({ id: 'ITM-' + n++, sup: sup, sku: sku, name: name, cat: cat, mkt: mkt, cur: mkt === 'KSA' ? 'SAR' : 'AED', val: val, pts: val * 100, av: av,
+      from: pk(FROMS), to: av === 'Suspended' ? '2026-10-31' : pk(['2027-06-30', '2027-12-31', '2028-06-30']) });
+  };
+  /* Gift cards come from YouGotaGift. Each brand runs in both markets and in several denominations. */
+  const GIFT = [['Carrefour', 'CRF'], ['Lulu', 'LUL'], ['Starbucks', 'SBX'], ['Namshi', 'NMS'], ['Noon', 'NOO'], ['Amazon', 'AMZ'],
+    ['Subway', 'SUBW'], ['KFC', 'KFCX'], ['Spotify', 'SPTF'], ['Etihad', 'ETHD'], ['Expedia', 'EXPD']];
+  GIFT.forEach(g => MKTS.forEach(mk => [25, 50, 100, 150, 200, 250, 500].forEach(v => {
+    if (rnd() < 0.82) add('ygg', 'YGG-' + g[1] + '-' + mk2(mk), g[0] + ' gift card', 'Gift cards', mk, v);
+  })));
+  /* Experiences and merchandise come from Cosmo Points. The supplier names them, so no brand is used. */
+  const EXP = [['Desert safari for two', 400], ['Spa day for one', 350], ['Theme park day pass', 300], ['Cinema tickets, two seats', 120],
+    ['Hot air balloon ride', 950], ['Yacht cruise for four', 1200], ['City sightseeing tour', 180], ['Cooking class for two', 420],
+    ['Scuba diving session', 550], ['Indoor skydiving flight', 390], ['Karting session for two', 260], ['Golf green fee', 480],
+    ['Water park day pass', 320], ['Aquarium family ticket', 280], ['Fine dining for two', 650], ['Afternoon tea for two', 220],
+    ['Desert camping night', 700], ['Kayaking tour for two', 240], ['Horse riding lesson', 300], ['Zip line adventure', 350],
+    ['Escape room for four', 400], ['Bowling game for four', 160], ['Photography workshop', 450], ['Pottery class for one', 190],
+    ['Helicopter city tour', 1500], ['Observation deck ticket', 170], ['Museum entry for two', 140], ['Paddle board session', 150],
+    ['Rock climbing day pass', 130], ['Spa massage for two', 600], ['Private chef dinner', 1800], ['Sunset dinner cruise', 420],
+    ['Trampoline park pass', 110], ['Ice rink session for two', 130], ['Virtual reality arcade pass', 150], ['Camel trekking tour', 280],
+    ['Mountain hiking tour', 260], ['Jet ski rental, one hour', 450], ['Snorkelling trip for two', 380], ['Family picnic package', 330],
+    ['Theatre show ticket', 250], ['Concert ticket, one seat', 350], ['Football match ticket', 200], ['Gym day pass', 90],
+    ['Yoga class pack, five classes', 400], ['Skydiving tandem jump', 2200], ['Dune buggy ride', 700], ['Falconry experience', 520],
+    ['Sailing lesson for two', 680], ['Cycling tour for two', 210], ['Perfume making workshop', 340], ['Chocolate tasting for two', 230],
+    ['Barista course for one', 370], ['Painting class for two', 290], ['Drone flying lesson', 440], ['Fishing trip for two', 560],
+    ['Hot stone therapy session', 410], ['Steam room and sauna pass', 160], ['Climbing wall course', 310], ['Stargazing night tour', 270],
+    ['Dhow dinner for two', 390], ['Go karting grand prix', 480], ['Mini golf for four', 120], ['Archery session for two', 180],
+    ['Surf lesson for one', 300]];
+  EXP.forEach(x => MKTS.forEach(mk => { if (mk === 'UAE' || rnd() < 0.7) add('cosmo', 'CP-' + code(x[0]) + '-' + mk2(mk), x[0], 'Experiences', mk, x[1]); }));
+  const MDS = [['Wireless earbuds', 450], ['Bluetooth speaker', 380], ['Noise cancelling headphones', 900], ['Smart watch', 1100],
+    ['Fitness tracker', 420], ['Tablet stand', 120], ['Power bank, 20000 mAh', 260], ['Wireless charging pad', 150],
+    ['Travel adapter set', 110], ['Cabin suitcase, 55 cm', 650], ['Cabin suitcase, 45 cm', 520], ['Weekend duffel bag', 340],
+    ['Laptop backpack', 300], ['Leather wallet', 280], ['Sunglasses case set', 95], ['Coffee machine', 1200], ['Milk frother', 190],
+    ['Electric kettle', 210], ['Air fryer', 740], ['Blender, one litre', 330], ['Rice cooker', 290], ['Cookware set, five pieces', 820],
+    ['Knife block set', 460], ['Dinner set, twelve pieces', 540], ['Bed linen set, king', 620], ['Bed linen set, queen', 560],
+    ['Bath towel set, six pieces', 310], ['Scented candle set', 180], ['Table lamp', 240], ['Air purifier', 980], ['Robot vacuum', 1600],
+    ['Steam iron', 270], ['Hair dryer', 350], ['Electric shaver', 480], ['Electric toothbrush', 390], ['Skincare gift set', 420],
+    ['Fragrance gift set', 530], ['Yoga mat', 160], ['Dumbbell set, 10 kg', 290], ['Resistance band set', 120],
+    ['Football, size five', 130], ['Tennis racket', 410], ['Badminton set for two', 230], ['Camping tent, two person', 690],
+    ['Cool box, 25 litre', 320], ['Picnic blanket', 110], ['Board game set', 200], ['Building blocks set', 250],
+    ['Remote control car', 340], ['Plush toy bear', 95], ['Digital photo frame', 460], ['Instant camera', 580], ['Action camera', 1350],
+    ['Tripod for phone', 140], ['Portable projector', 1450], ['Smart light bulb set', 280], ['Smart plug, pack of two', 170],
+    ['Door sensor set', 220], ['Desk chair cushion', 190], ['Laptop cooling stand', 160], ['Mechanical keyboard', 520],
+    ['Wireless mouse', 180], ['Monitor light bar', 300], ['Cable organiser set', 85], ['Water bottle, one litre', 110],
+    ['Vacuum flask', 160], ['Lunch box set', 130], ['Chef apron set', 140], ['Herb garden kit', 170], ['Indoor plant pot set', 200],
+    ['Wall clock', 230], ['Photo album', 120], ['Fountain pen', 350], ['Notebook set', 100], ['Desk organiser', 150],
+    ['Umbrella, wind resistant', 125], ['Travel pillow set', 145], ['Packing cube set', 175], ['Luggage scale', 95],
+    ['Beach towel set', 205], ['Sun lounger cover', 235], ['Barbecue tool set', 310], ['Garden chair, folding', 265],
+    ['Toolbox set, 40 pieces', 430], ['First aid kit', 150], ['Car vacuum cleaner', 290], ['Dash camera', 620],
+    ['Tyre inflator', 340], ['Car seat cover set', 380]];
+  MDS.forEach(x => MKTS.forEach(mk => { if (mk === 'UAE' || rnd() < 0.7) add('cosmo', 'CP-' + code(x[0]) + '-' + mk2(mk), x[0], 'Merchandise', mk, x[1]); }));
+  return rows;
+})();
+const citem = id => CITEMS.find(x => x.id === id) || {};
+const cmoney = it => it.cur + ' ' + n0(it.val);
+/* Which supplier catalogues are active for each bank and programme. Lune sets this. The issuer approves it. (RC-20) */
+const CATSEL = [
+  { prog: 'nova', sup: 'ygg', cat: 'Gift cards', on: 1, by: 'Nova Bank cards lead', date: '12 Sep 2026' },
+  { prog: 'nova', sup: 'cosmo', cat: 'Experiences', on: 1, by: 'Nova Bank cards lead', date: '12 Sep 2026' },
+  { prog: 'nova', sup: 'cosmo', cat: 'Merchandise', on: 0, by: '', date: '' }
+];
+const catLive = (pid, sup, cat) => CATSEL.some(c => c.prog === pid && c.sup === sup && c.cat === cat && c.on);
+/* Item level inclusion, exclusion and ranking for one programme (RC-20). Every item inside an active supplier and
+   category is included until an operator excludes it. The rank list holds the items the bank wants first.
+   Both apply to the programme only. The supplier catalogue does not change. */
+/* One canonical starting state for Nova Rewards, used by Pulse Admin and by LuneHub (13 Nov 2026).
+   The hash below picks the excluded items from the item ID and the supplier SKU. Both products run it,
+   so Lune and the bank see the same included items, the same excluded items and the same rank order. */
+const RCH = s => { let v = 0; for (let i = 0; i < s.length; i++) v = (v * 31 + s.charCodeAt(i)) % 100000; return v; };
+const rcOut = x => RCH(x.id + x.sku) % 100 < 18;
+const PEX = {}, PRANK = {};
+(() => {
+  PEX.nova = {}; PRANK.nova = [];
+  CITEMS.filter(x => catLive('nova', x.sup, x.cat)).forEach(x => { if (rcOut(x)) PEX.nova[x.id] = 1; else PRANK.nova.push(x.id); });
+})();
+const pexOf = pid => (PEX[pid] = PEX[pid] || {});
+const prankOf = pid => (PRANK[pid] = PRANK[pid] || []);
+const pex = (pid, id) => !!pexOf(pid)[id];
+const prank = (pid, id) => prankOf(pid).indexOf(id) + 1;
+const progItems = pid => CITEMS.filter(x => catLive(pid, x.sup, x.cat));
+/* Redemption orders (RC-41, RC-61, RC-72): one order for each redemption, with its state and its reason.
+   Production holds thousands of rows, so the sample set is generated from a fixed seed. */
+const RSTATES = ['Placed', 'Reserved', 'Confirmed', 'Fulfilled', 'Failed', 'Cancelled', 'Reversed', 'Refunded'];
+const RWHY = {
+  Placed: 'Waiting for the points and the item to be reserved.',
+  Reserved: 'Points and item reserved. Waiting for the supplier to confirm.',
+  Confirmed: 'The supplier confirmed the order. Waiting for fulfilment.',
+  Fulfilled: '',
+  Failed: 'The supplier did not answer. The retries ran out, so the points went back.',
+  Cancelled: 'The customer cancelled the order before the supplier confirmed.',
+  Reversed: 'The supplier could not fulfil the order. The points went back to the lots they came from.',
+  Refunded: 'The customer returned the item. The supplier refunded the order.'
+};
+const RORD = (() => {
+  let s = 51120264;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const hex = n => { let o = ''; for (let i = 0; i < n; i++) o += '0123456789ABCDEF'[Math.floor(rnd() * 16)]; return o; };
+  const CUS = ['CUS-7F3A21', 'CUS-88D2B7', 'CUS-2B71F0', 'CUS-5C0D33', 'CUS-41E9A6'].concat(Array.from({ length: 300 }, () => 'CUS-' + hex(6)));
+  const pick = () => (rnd() < 0.14 ? CUS[Math.floor(rnd() * 5)] : CUS[Math.floor(rnd() * CUS.length)]);
+  const pool = CITEMS.filter(x => x.mkt === 'UAE' && x.av === 'Available' && catLive('nova', x.sup, x.cat));
+  const END = Date.UTC(2026, 10, 12), rows = [];
+  for (let d = 0; d < 120; d++) {
+    const iso = new Date(END - d * 86400000).toISOString().slice(0, 10);
+    const k = 1 + Math.floor(rnd() * 2.4);
+    for (let j = 0; j < k; j++) {
+      const it = pool[Math.floor(rnd() * pool.length)], r = rnd();
+      /* Recent orders are still moving through the states. Older orders have reached a final state. */
+      let st = d <= 5 ? (r < 0.18 ? 'Placed' : r < 0.42 ? 'Reserved' : r < 0.66 ? 'Confirmed' : r < 0.9 ? 'Fulfilled' : 'Failed')
+        : (r < 0.78 ? 'Fulfilled' : r < 0.85 ? 'Failed' : r < 0.9 ? 'Cancelled' : r < 0.95 ? 'Reversed' : 'Refunded');
+      rows.push({ d: iso, ref: '', bank: 'Nova Bank', prog: 'Nova Rewards', sup: it.sup, item: it.id, pts: it.pts, cur: it.cur, val: it.val, cus: pick(), st: st, why: RWHY[st], rwd: '' });
+    }
+  }
+  rows.sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
+  let n = 118001, w = 520001;
+  for (let i = rows.length - 1; i >= 0; i--) { rows[i].ref = 'RDM-' + n++; rows[i].rwd = RWD(w++); }
+  return rows;
+})();
+function pgRedemption() {
+  const T = [['suppliers', 'Suppliers'], ['items', 'Catalogue items'], ['catalogues', 'Bank catalogues'], ['orders', 'Orders']];
+  return head('', 'Redemption Catalogue', 'Partners run their own catalogues. Lune manages the integration, sets which catalogues are active for each bank and programme, and holds one order for every redemption.', legend()) +
+    '<div class="content">' + tabs('r', T, S.rtab) +
+    (S.rtab === 'items' ? rcItems() : S.rtab === 'catalogues' ? rcCatalogues() : S.rtab === 'orders' ? rcOrders() : rcSuppliers()) + '</div>';
+}
+function rcSuppliers() {
+  return '<div class="mrow">' + mc('Suppliers live', SUPL.filter(x => x.st === 'Live').length, 'Each runs its own catalogue', 'RC-17 RC-18') +
+    mc('Catalogue items', n0(CITEMS.length), 'Across every market', 'RC-17 RC-71') +
+    mc('Markets covered', MKTS.length + ' of ' + MKTS.length, 'UAE and KSA', 'RC-19 RC-24') +
+    mc('Items available', n0(CITEMS.filter(x => x.av === 'Available').length), 'Checked against the supplier', 'RC-22 RC-71') + '</div>' +
+    card('Suppliers', '', tagB('RC-17 RC-18') + tagB('RC-19 RC-22'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Supplier</th><th>Connection</th><th data-req="RC-17">Fulfils</th><th data-req="RC-19 RC-24">Markets</th><th class="r">Items</th><th data-req="RC-22">Availability check</th><th data-req="RC-18">Onboarding</th><th>Last sync</th><th>Status</th><th></th></tr></thead><tbody>' +
+      SUPL.map(x => '<tr data-req="RC-17 RC-18 RC-19"><td><b>' + x.name + '</b><small>' + x.id + '</small></td><td>' + x.conn + '</td><td class="wrap" style="min-width:11rem">' + x.fulfils + '</td><td class="wrap">' + x.mkts + '</td><td class="r num">' + CITEMS.filter(i => i.sup === x.id).length + '</td><td data-req="RC-22">' + x.avail + '</td><td data-req="RC-18" class="wrap">' + x.stage + '</td><td class="num">' + x.sync + '</td><td>' + stBadge(x.st) + '</td><td><button class="btn ghost" data-toast="' + x.name + ': sync started.">Sync now</button></td></tr>').join('') + '</tbody></table></div>' +
+      '<p class="sm muted" data-req="RC-18">Each supplier passes due diligence, contracting, integration and testing before Lune activates it.</p>', '', 'RC-17 RC-18 RC-19 RC-22') +
+    card('Coverage by Market and Category', 'Items from every supplier, by market and category.', tagB('RC-19 RC-71'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Market</th><th>Category</th>' + SUPL.map(x => '<th class="r">' + x.name + '</th>').join('') + '<th class="r">Available</th></tr></thead><tbody>' +
+      [].concat.apply([], MKTS.map(mk => [...new Set(CITEMS.filter(i => i.mkt === mk).map(i => i.cat))].map(ct => '<tr data-req="RC-19 RC-71"><td><b>' + mk + '</b></td><td>' + ct + '</td>' +
+        SUPL.map(x => '<td class="r num">' + CITEMS.filter(i => i.mkt === mk && i.cat === ct && i.sup === x.id).length + '</td>').join('') +
+        '<td class="r num">' + CITEMS.filter(i => i.mkt === mk && i.cat === ct && i.av === 'Available').length + '</td></tr>'))).join('') + '</tbody></table></div>', '', 'RC-19 RC-71');
+}
+function rcItems() {
+  const f = S.ri, q = f.q.trim().toLowerCase();
+  const L = CITEMS.filter(x => (!f.sup || x.sup === f.sup) && (!f.mkt || x.mkt === f.mkt) && (!f.cat || x.cat === f.cat) && (!q || (x.id + ' ' + x.sku + ' ' + x.name).toLowerCase().includes(q)));
+  const per = 25, pages = Math.max(1, Math.ceil(L.length / per)), page = Math.min(Math.max(1, f.page), pages), first = (page - 1) * per, V = L.slice(first, first + per);
+  const lo = L.reduce((t, x) => Math.min(t, x.pts), Infinity), hi = L.reduce((t, x) => Math.max(t, x.pts), 0);
+  const sups = [...new Set(L.map(x => x.sup))].length, mkts = [...new Set(L.map(x => x.mkt))].length;
+  return '<div class="mrow">' + mc('Items matching', n0(L.length), 'Search and filters applied', 'RC-28') +
+    mc('Available now', n0(L.filter(x => x.av === 'Available').length), 'Open to orders today', 'RC-22') +
+    mc('Points price', L.length ? n0(lo) + ' to ' + n0(hi) : '0', 'Lowest to highest in view', 'RC-21') +
+    mc('Coverage', sups + (sups === 1 ? ' supplier' : ' suppliers') + ' · ' + mkts + (mkts === 1 ? ' market' : ' markets'), 'In the filtered set', 'RC-24') + '</div>' +
+    card('Catalogue Items', 'One record for each supplier item, with its market, price, availability and effective dates.', tagB('RC-21 RC-17') + tagB('RC-22 RC-24') + tagB('RC-28'),
+    '<div class="search"><input class="field" id="riq" type="search" placeholder="Search item, item ID or supplier SKU" aria-label="Search item, item ID or supplier SKU" value="' + esc(f.q) + '" autocomplete="off">' +
+    sel('risup', '', [['', 'Supplier: All']].concat(SUPL.map(x => [x.id, x.name])), f.sup, '', 'aria-label="Supplier" style="width:13rem"') +
+    sel('rimkt', '', [['', 'Market: All']].concat(MKTS.map(m => [m, m])), f.mkt, '', 'aria-label="Market" style="width:11rem"') +
+    sel('ricat', '', [['', 'Category: All']].concat(CATS.map(c => [c, c])), f.cat, '', 'aria-label="Category" style="width:13rem"') +
+    '<button class="btn ghost" data-rireset>Reset filters</button></div>' +
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Item</th><th>Supplier</th><th data-req="RC-24">Market</th><th>Category</th><th class="r">Points price</th><th class="r" data-req="RC-24">Money value</th><th data-req="RC-22">Availability</th><th>Effective from</th><th>Effective to</th></tr></thead><tbody>' +
+    (V.length ? V.map(x => '<tr data-req="RC-21 RC-22"><td style="min-width:12rem"><b>' + esc(x.name) + '</b><small>' + x.id + ' · SKU ' + x.sku + '</small></td><td>' + supOf(x.sup).name + '</td><td data-req="RC-24">' + x.mkt + '</td><td>' + x.cat + '</td><td class="r num">' + n0(x.pts) + '</td><td class="r num" data-req="RC-24">' + cmoney(x) + '</td><td data-req="RC-22">' + stBadge(x.av) + '</td><td class="num">' + dmy(x.from) + '</td><td class="num">' + dmy(x.to) + '</td></tr>').join('')
+      : '<tr><td colspan="9" class="muted">No items match these filters.</td></tr>') + '</tbody></table></div>' +
+    '<div class="hrow sm muted" data-req="RC-28"><span>' + (L.length ? 'Showing ' + n0(first + 1) + ' to ' + n0(first + V.length) + ' of ' + n0(L.length) + ' items' : 'Showing 0 of 0 items') + '</span><span class="sp"></span>' +
+    '<button class="btn ghost" data-ripage="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>Previous</button><span>Page ' + n0(page) + ' of ' + n0(pages) + '</span>' +
+    '<button class="btn ghost" data-ripage="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>' +
+    '<p class="sm muted" data-req="RC-22 RC-24">Pulse hides an item that is out of stock, suspended or past its effective dates, so no order can be placed against it. The points price uses the programme valuation of 100 points to one unit of the market currency. The catalogue holds ' + n0(CITEMS.length) + ' items in all.</p>', '', 'RC-21 RC-17 RC-22 RC-24 RC-28');
+}
+/* The items of one programme, after the supplier and category selection above (RC-20). */
+function rcMatch(p) {
+  const f = S.rc, q = f.q.trim().toLowerCase();
+  const L = progItems(p.id).filter(x => (!f.sup || x.sup === f.sup) && (!f.mkt || x.mkt === f.mkt) && (!f.cat || x.cat === f.cat) &&
+    (!f.inc || (f.inc === 'in' ? !pex(p.id, x.id) : f.inc === 'out' ? pex(p.id, x.id) : prank(p.id, x.id) > 0)) &&
+    (!q || (x.id + ' ' + x.sku + ' ' + x.name).toLowerCase().includes(q)));
+  return L.sort((a, b) => { const ra = prank(p.id, a.id) || 1e6, rb = prank(p.id, b.id) || 1e6; return ra - rb || (a.id < b.id ? -1 : 1); });
+}
+function rcFilterText() {
+  const f = S.rc, out = [];
+  if (f.q.trim()) out.push('Search "' + esc(f.q.trim()) + '"');
+  if (f.sup) out.push('Supplier ' + supOf(f.sup).name);
+  if (f.mkt) out.push('Market ' + f.mkt);
+  if (f.cat) out.push('Category ' + f.cat);
+  if (f.inc) out.push(f.inc === 'in' ? 'Included only' : f.inc === 'out' ? 'Excluded only' : 'Ranked only');
+  return out.length ? out.join(' · ') : 'No filter. Every item in this programme.';
+}
+function rcProgItems(p) {
+  const f = S.rc, L = rcMatch(p), pool = progItems(p.id);
+  const per = 25, pages = Math.max(1, Math.ceil(L.length / per)), page = Math.min(Math.max(1, f.page), pages), first = (page - 1) * per, V = L.slice(first, first + per);
+  const ranked = prankOf(p.id);
+  const rankCell = x => {
+    if (pex(p.id, x.id)) return '<span class="muted">Not ranked</span>';
+    const r = prank(p.id, x.id);
+    return r ? '<span class="hrow"><b class="num">' + r + '</b><button class="btn ghost" data-prk="' + p.id + '|' + x.id + '|-1"' + (r <= 1 ? ' disabled' : '') + ' aria-label="Move ' + esc(x.name) + ' up">Up</button><button class="btn ghost" data-prk="' + p.id + '|' + x.id + '|1"' + (r >= ranked.length ? ' disabled' : '') + ' aria-label="Move ' + esc(x.name) + ' down">Down</button><button class="btn ghost" data-prk="' + p.id + '|' + x.id + '|0" aria-label="Clear the rank of ' + esc(x.name) + '">Clear</button></span>'
+      : '<button class="btn ghost" data-prk="' + p.id + '|' + x.id + '|9">Rank it</button>';
+  };
+  return '<div class="hrow"><button class="lnk" data-go="redemption/catalogues">Back to bank catalogues</button></div>' +
+    '<div class="mrow">' + mc('Items matching', n0(L.length), 'Search and filters applied', 'RC-28') +
+    mc('Included', n0(L.filter(x => !pex(p.id, x.id)).length), 'Shown to this bank', 'RC-20') +
+    mc('Excluded', n0(L.filter(x => pex(p.id, x.id)).length), 'Hidden and takes no order', 'RC-20') +
+    mc('Ranked', n0(ranked.length), 'Shown first, in this order', 'RC-20') + '</div>' +
+    card('Items for ' + p.bank + ' · ' + p.name, 'Include or exclude each item for this programme and set the order the bank wants first.', tagB('RC-20') + tagB('RC-25') + tagB('RC-28'),
+      '<div class="search"><input class="field" id="rcq" type="search" placeholder="Search item, item ID or supplier SKU" aria-label="Search item, item ID or supplier SKU" value="' + esc(f.q) + '" autocomplete="off">' +
+      sel('rcsup', '', [['', 'Supplier: All']].concat(SUPL.map(x => [x.id, x.name])), f.sup, '', 'aria-label="Supplier" style="width:13rem"') +
+      sel('rcmkt', '', [['', 'Market: All']].concat(MKTS.map(m => [m, m])), f.mkt, '', 'aria-label="Market" style="width:11rem"') +
+      sel('rccat', '', [['', 'Category: All']].concat([...new Set(pool.map(x => x.cat))].map(c => [c, c])), f.cat, '', 'aria-label="Category" style="width:13rem"') +
+      sel('rcinc', '', [['', 'Selection: All'], ['in', 'Included only'], ['out', 'Excluded only'], ['rk', 'Ranked only']], f.inc, '', 'aria-label="Selection" style="width:13rem"') +
+      '<button class="btn ghost" data-rcreset>Reset filters</button></div>' +
+      '<div class="hrow" data-req="RC-25"><button class="btn" data-sheet="rcbulk:' + p.id + ':include"' + (L.length ? '' : ' disabled') + '>Include all ' + n0(L.length) + ' matching</button>' +
+      '<button class="btn" data-sheet="rcbulk:' + p.id + ':exclude"' + (L.length ? '' : ' disabled') + '>Exclude all ' + n0(L.length) + ' matching</button>' +
+      '<span class="sm muted">The bulk action applies to the items that match the search and filters. Pulse asks you to confirm first.</span></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Item</th><th>Supplier</th><th data-req="RC-24">Market</th><th>Category</th><th class="r">Points price</th><th class="r" data-req="RC-24">Money value</th><th data-req="RC-22">Availability</th><th data-req="RC-20">Rank in this programme</th><th data-req="RC-20">In the bank catalogue</th></tr></thead><tbody>' +
+      (V.length ? V.map(x => { const on = !pex(p.id, x.id); return '<tr data-req="RC-20 RC-21"><td style="min-width:12rem"><b>' + esc(x.name) + '</b><small>' + x.id + ' · SKU ' + x.sku + '</small></td><td>' + supOf(x.sup).name + '</td><td data-req="RC-24">' + x.mkt + '</td><td>' + x.cat + '</td><td class="r num">' + n0(x.pts) + '</td><td class="r num" data-req="RC-24">' + cmoney(x) + '</td><td data-req="RC-22">' + stBadge(x.av) + '</td>' +
+        '<td data-req="RC-20" style="min-width:12rem">' + rankCell(x) + '</td>' +
+        '<td data-req="RC-20"><span class="hrow">' + stBadge(on ? 'Included' : 'Excluded') + '<button class="sw" role="switch" aria-checked="' + on + '" aria-label="' + esc(x.name) + ' ' + x.id + ' for ' + esc(p.name) + '" data-pinc="' + p.id + '|' + x.id + '"><i></i></button></span></td></tr>'; }).join('')
+        : '<tr><td colspan="9" class="muted">No items match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted" data-req="RC-28"><span>' + (L.length ? 'Showing ' + n0(first + 1) + ' to ' + n0(first + V.length) + ' of ' + n0(L.length) + ' items' : 'Showing 0 of 0 items') + '</span><span class="sp"></span>' +
+      '<button class="btn ghost" data-rcpage="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>Previous</button><span>Page ' + n0(page) + ' of ' + n0(pages) + '</span>' +
+      '<button class="btn ghost" data-rcpage="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>' +
+      '<p class="sm muted" data-req="RC-20">This programme holds ' + n0(pool.length) + ' items from the suppliers and categories that are active for it. An excluded item does not appear to ' + esc(p.bank) + ' customers and takes no orders. The rank applies to this programme only. The supplier catalogue keeps its own order.</p>', '', 'RC-20 RC-21 RC-22 RC-24 RC-25 RC-28');
+}
+function rcCatalogues() {
+  const PP = PROGS.filter(p => p.cur === 'points');
+  const open = PP.find(p => p.id === S.rprog);
+  if (open) return rcProgItems(open);
+  return PP.map(p => card('Catalogues for ' + p.bank + ' · ' + p.name, 'Lune sets which supplier catalogues are active for this programme. The issuer approves each one.', tagB('RC-20') + tagB('RC-17'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Supplier</th><th>Category</th><th data-req="RC-24">Markets</th><th class="r">Items available</th><th class="r" data-req="RC-20">Excluded for this programme</th><th data-req="RC-20">Issuer approval</th><th>Status</th><th>Active for this programme</th></tr></thead><tbody>' +
+    CATSEL.filter(c => c.prog === p.id).map((c, i) => '<tr data-req="RC-20"><td><b>' + supOf(c.sup).name + '</b></td><td>' + c.cat + '</td><td data-req="RC-24">' + [...new Set(CITEMS.filter(x => x.sup === c.sup && x.cat === c.cat).map(x => x.mkt))].join(', ') + '</td><td class="r num">' + n0(CITEMS.filter(x => x.sup === c.sup && x.cat === c.cat && x.av === 'Available').length) + '</td>' +
+      '<td class="r num" data-req="RC-20">' + (c.on ? n0(CITEMS.filter(x => x.sup === c.sup && x.cat === c.cat && pex(p.id, x.id)).length) : '<span class="muted">None</span>') + '</td>' +
+      '<td class="wrap" data-req="RC-20" style="min-width:12rem">' + (c.by ? c.by + '<small>' + c.date + '</small>' : '<span class="muted">Not recorded</span>') + '</td><td>' + stBadge(c.on ? 'Active' : 'Not active') + '</td>' +
+      '<td><span class="hrow"><span class="sm muted">' + (c.on ? 'On' : 'Off') + '</span><button class="sw" role="switch" aria-checked="' + !!c.on + '" aria-label="' + esc(supOf(c.sup).name + ' ' + c.cat) + ' for ' + esc(p.name) + '" data-csel="' + CATSEL.indexOf(c) + '"><i></i></button></span></td></tr>').join('') + '</tbody></table></div>' +
+    '<div class="hrow"><button class="btn" data-go="redemption/catalogues/' + p.id + '">' + svg(I.gift) + 'Manage items for this programme</button><span class="sm muted" data-req="RC-20">' + n0(progItems(p.id).length) + ' items sit inside the active suppliers and categories. Include or exclude single items and rank the ones this bank wants first.</span></div>' +
+    '<p class="sm muted" data-req="RC-20">Lune turns a catalogue on with the issuer\'s approval. The bank has no switch of its own. A catalogue that is off shows no items to that bank\'s customers and takes no orders.</p>', '', 'RC-20 RC-17')).join('') +
+    '<p class="sm muted">Only a programme that pays points has a redemption catalogue. These programmes pay cashback: ' + PROGS.filter(p => p.cur !== 'points').map(p => p.name).join(', ') + '.</p>';
+}
+function rcOrders() {
+  const f = S.ro, q = f.q.trim().toLowerCase();
+  const L = RORD.filter(x => (!f.sup || x.sup === f.sup) && (!f.st || x.st === f.st) && (!q || (x.cus + ' ' + x.ref + ' ' + x.rwd).toLowerCase().includes(q)));
+  const per = 12, pages = Math.max(1, Math.ceil(L.length / per)), page = Math.min(Math.max(1, f.page), pages), first = (page - 1) * per, V = L.slice(first, first + per);
+  const cnt = st => L.filter(x => x.st === st).length;
+  return '<div class="mrow">' + mc('Orders', n0(L.length), 'Matching the filters', 'RC-41 RC-72') +
+    mc('Fulfilled', n0(cnt('Fulfilled')), 'The customer has the reward', 'RC-72') +
+    mc('In progress', n0(cnt('Placed') + cnt('Reserved') + cnt('Confirmed')), 'Placed, reserved or confirmed', 'RC-41') +
+    mc('Points debited', n0(L.filter(x => !['Failed', 'Cancelled', 'Reversed', 'Refunded'].includes(x.st)).reduce((t, x) => t + x.pts, 0)), 'Orders that still hold a debit', 'RC-41') + '</div>' +
+    card('Redemption Orders', 'One order for each redemption. Each state that is not a success carries a reason.', tagB('RC-41 RC-61') + tagB('RC-72') + tagB('LAF-113'),
+      '<div class="search"><input class="field" id="roq" type="search" placeholder="Search customer, order reference or reward reference" aria-label="Search customer, order reference or reward reference" value="' + esc(f.q) + '" autocomplete="off">' +
+      sel('rosup', '', [['', 'Supplier: All']].concat(SUPL.map(x => [x.id, x.name])), f.sup, '', 'aria-label="Supplier" style="width:13rem"') +
+      sel('rost', '', [['', 'State: All']].concat(RSTATES.map(x => [x, x])), f.st, '', 'aria-label="State" style="width:11rem"') +
+      '<button class="btn ghost" data-roreset>Reset filters</button></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Order</th><th>Placed</th><th data-req="RC-61">Customer</th><th>Bank and programme</th><th>Supplier</th><th>Item</th><th class="r">Points debited</th><th class="r" data-req="RC-24">Money value</th><th data-req="LAF-113">Reward reference</th><th>State and reason</th></tr></thead><tbody>' +
+      (V.length ? V.map(x => { const it = citem(x.item); return '<tr data-req="RC-41 RC-61"><td><b class="num">' + x.ref + '</b></td><td class="num" style="white-space:nowrap">' + dmy(x.d) + '</td><td class="num" data-req="RC-61">' + x.cus + '</td><td class="wrap" style="min-width:9rem"><b>' + x.bank + '</b><small>' + x.prog + '</small></td><td>' + supOf(x.sup).name + '</td><td class="wrap" style="min-width:10rem">' + it.name + '<small>' + it.id + '</small></td><td class="r num">' + n0(x.pts) + '</td><td class="r num" data-req="RC-24">' + x.cur + ' ' + n0(x.val) + '</td><td data-req="LAF-113" style="white-space:nowrap"><span class="num">' + x.rwd + '</span></td><td class="wrap" style="min-width:14rem">' + stBadge(x.st) + (x.why ? '<small>' + esc(x.why) + '</small>' : '') + '</td></tr>'; }).join('')
+        : '<tr><td colspan="10" class="muted">No orders match these filters.</td></tr>') + '</tbody></table></div>' +
+      '<div class="hrow sm muted"><span>' + (L.length ? 'Showing ' + n0(first + 1) + ' to ' + n0(first + V.length) + ' of ' + n0(L.length) + ' orders' : 'Showing 0 of 0 orders') + '</span><span class="sp"></span>' +
+      '<button class="btn ghost" data-ropage="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>Previous</button><span>Page ' + n0(page) + ' of ' + n0(pages) + '</span>' +
+      '<button class="btn ghost" data-ropage="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>' +
+      '<p class="sm muted" data-req="RC-41 LAF-113">The reward reference links the order to the points it debited. A failed, cancelled or reversed order returns the points to the lots they came from.</p>', '', 'RC-41 RC-61 RC-72 LAF-113');
+}
+
+/* ---------- 4b. Programmes (RFP addition): Lune operations configures. LuneHub shows the programme read only. ---------- */
+const modsOn = p => [CUR[p.cur][0]].concat(MODS.filter(m => p.mods[m[0]]).map(m => m[1])).join(', ');
+function pgProgrammes() {
+  return head('', 'Programmes', 'Each bank can have several programmes. Lune operations configures them. The bank sees them read only in LuneHub.', legend()) +
+    '<div class="content">' +
+    card('Programmes', 'Each bank is a separate tenant. Its programmes sit inside that tenant.', tagB('LAF-9') + tagB('LAF-21'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Bank (tenant)</th><th>Programme</th><th>Status</th><th>Feature flags on</th><th>Point name</th><th>Updated</th></tr></thead><tbody>' +
+      PROGS.map(p => '<tr style="cursor:pointer" data-row="programme/' + p.id + '"><td><b>' + p.bank + '</b><small>' + TID(p.bank) + '</small></td><td><button class="lnk" data-go="programme/' + p.id + '">' + p.name + '</button></td><td>' + stBadge(p.st) + '</td><td>' + modsOn(p) + '</td><td>' + (p.cur === 'points' && p.pts ? p.pts.name : '<span class="muted">Not used</span>') + '</td><td class="num">' + p.upd + '</td></tr>').join('') + '</tbody></table></div>' +
+      '<p class="sm muted" data-req="LAF-9">Only authorised Lune operations staff work across tenants. Their access is logged.</p>', '', 'LAF-9 LAF-21') +
+    '</div>';
+}
+function pgProgramme(id) {
+  const p = PROGS.find(x => x.id === id) || PROGS[0];
+  const live = p.st === 'Live';
+  const entity = card('Entity', 'Lune sets up each entity with its name, market, currency, logo and status.', tagB('LAF-10') + tagB('LAF-17') + tagB('LAF-13'),
+    '<dl class="kv"><dt>Programme name</dt><dd data-req="LAF-10">' + p.name + '</dd><dt>Bank (tenant)</dt><dd data-req="LAF-9">' + p.bank + ' <span class="muted sm" style="font-weight:500">' + TID(p.bank) + '</span></dd><dt>Market</dt><dd data-req="LAF-10 LAF-21">UAE</dd><dt>Currency</dt><dd data-req="LAF-13">AED <span class="muted sm" style="font-weight:500">Used for transaction values, point valuation and reporting</span></dd><dt>Logo</dt><dd data-req="LAF-10"><span class="phone-logo" style="display:inline-grid;place-items:center;width:2rem;height:2rem;border-radius:9999px;border:1px solid var(--border);font-size:.6875rem;font-weight:800;color:#0a634d">' + p.bank.split(' ').map(w => w[0]).join('') + '</span> ' + p.id + '-logo.png</dd><dt>Status</dt><dd data-req="LAF-17">' + stBadge(p.st) + '</dd></dl>' +
+    '<div class="hrow" data-req="LAF-17">' + (live ? '<button class="btn" data-pst="' + p.id + ':Suspended">Suspend</button>' : '<button class="btn pri" data-pst="' + p.id + ':Live">Reactivate</button>') + '<span class="sm muted">Lune or the bank can activate, suspend and reactivate each programme by configuration. All history stays.</span></div>', '', 'LAF-10 LAF-17 LAF-13');
+  const modules = card('Feature Flags', 'Each flag shows or hides the SDK component and turns the backend calculation on or off.', tagB('LAF-11'),
+    '<div class="fg" data-req="LAF-11"><span class="flabel" id="curL">Reward currency</span><div class="tabs" role="radiogroup" aria-labelledby="curL" style="justify-self:start">' + Object.keys(CUR).map(k => '<button type="button" class="tab" role="radio" aria-checked="' + (p.cur === k) + '" data-cur="' + p.id + ':' + k + '">' + CUR[k][0] + '</button>').join('') + '</div><p class="fhint">' + CUR[p.cur][1] + (p.cur === 'points' ? ' Points convert to cashback when the cardholder redeems.' : '') + '</p></div>' +
+    '<div class="stack" style="gap:.5rem">' + MODS.map(m => '<div class="mod' + (p.mods[m[0]] ? '' : ' off') + '" data-req="LAF-11"><span>' + m[1] + '<small class="sm muted" style="display:block;font-weight:500">SDK: ' + m[2] + '. Backend: ' + m[3] + '.</small></span><span class="hrow"><span class="sm muted">' + (p.mods[m[0]] ? 'On' : 'Off') + '</span><button class="sw" role="switch" aria-checked="' + !!p.mods[m[0]] + '" aria-label="' + m[1] + '" data-mod="' + p.id + ':' + m[0] + '"><i></i></button></span></div>').join('') + '</div>', '', 'LAF-11');
+  const points = p.pts && p.cur === 'points' ? card('Points', 'Point name, earn and redemption valuation, validity and the order in which point lots are used. Lune sets these in the backend.', tagB('LAF-18 LAF-112') + tagB('LAF-113 LAF-116'),
+    '<dl class="kv"><dt>Point name (terminology shown in the bank app)</dt><dd data-req="LAF-18 LAF-112">' + p.pts.name + '</dd><dt>Earn valuation</dt><dd data-req="LAF-112">' + p.pts.earn + '</dd><dt>Redemption valuation</dt><dd data-req="LAF-112">' + p.pts.red + '</dd><dt>Point validity, months from the earn date</dt><dd data-req="LAF-113">' + p.pts.months + ' months <span class="muted sm" style="font-weight:500">Each point lot gets its own expiry date when the points are earned.</span></dd><dt>Points used first</dt><dd data-req="LAF-116">' + (p.pts.order === 'oldest' ? 'Oldest earn date first' : 'Earliest expiry first') + '</dd></dl>' +
+    '<div class="note" data-req="LAF-112">Lune sets these values in the backend. The bank asks for a change in writing.</div>' +
+    '<p class="sm muted" data-req="LAF-116">Each redemption records the method applied and the lots it used.</p>', '', 'LAF-18 LAF-112 LAF-113 LAF-116') : '';
+  const rates = p.rates && p.cur === 'points' ? card('Valuation Rates', 'Effective-dated point cost and liability valuation rates, by currency and by funding source.', tagB('LAF-130'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Effective from</th><th>Currency</th><th>Funding source</th><th class="r">Point cost</th><th class="r">Liability valuation</th><th>Status</th></tr></thead><tbody>' +
+    p.rates.map(r => '<tr data-req="LAF-130"><td class="num">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td class="r num">AED ' + r[3] + ' per point</td><td class="r num">AED ' + r[4] + ' per point</td><td>' + stBadge(r[5]) + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<div class="note" data-req="LAF-130">Lune sets these values in the backend. The bank asks for a change in writing.</div>', '', 'LAF-130') : '';
+  const tiers = p.tiers && p.mods.tiers ? card('Tiers', 'An ordered set of tiers. Each tier raises the base rate by its multiplier. Separate thresholds for upgrade, renewal, downgrade and requalification.', tagB('LAF-131 LAF-132 LAF-133 LAF-137') + tagB('LAF-142 LAF-134 LAF-138') + tagB('LAF-139 LAF-140'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Tier</th><th>Multiplier</th><th>Upgrade at</th><th>Renewal at</th><th>Downgrade</th><th>Requalification at</th><th>Or qualifies with card products</th></tr></thead><tbody>' +
+    p.tiers.map((t, i) => '<tr data-req="' + (i ? 'LAF-131 LAF-133 LAF-142 LAF-137' : 'LAF-132 LAF-133') + '"><td><b>' + t[0] + '</b>' + (i ? '' : '<small>Base tier</small>') + '</td><td class="num">' + t[1] + '</td><td class="num">' + t[2] + '</td><td class="num">' + t[3] + '</td><td class="num">' + t[4] + '</td><td class="num">' + t[5] + '</td><td>' + t[6] + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<dl class="kv"><dt>Assessment period</dt><dd data-req="LAF-134 LAF-138">Rolling 12 months, assessed every month and on demand</dd><dt>Qualifying measure</dt><dd data-req="LAF-136">Points earned in the period, or the number of purchases. Platinum also qualifies at 120 purchases in 12 months.</dd><dt>Effective date</dt><dd data-req="LAF-139">Upgrades, downgrades and renewals apply from an effective date. Each move is kept in the tier history and sends an event to the bank.</dd><dt>Base tier</dt><dd data-req="LAF-132">A customer is in Base when no higher tier condition is met.</dd></dl>' +
+    '<div class="note" data-req="LAF-140">Lune sets these values in the backend. Tier changes are made on the bank\'s written request, so two parties approve each change.</div>' +
+    '<div class="hrow"><button class="btn ghost" data-toast="Tier evaluation started on demand.">Evaluate tiers now</button><span class="sm muted" data-req="LAF-138">Evaluation uses the thresholds above. It does not change them.</span></div>', '', 'LAF-131 LAF-132 LAF-133 LAF-137 LAF-142 LAF-134 LAF-138 LAF-139 LAF-140') : '';
+  const gr = GAME[p.id] || [];
+  const game = p.mods.game && gr.length ? card('Missions, Streaks and Badges', 'Lune configures each rule for the programme, with no code change. The bank selects which rules run in LuneHub, then customers see their progress in the bank app.', tagB('LAF-205 LAF-206') + tagB('LAF-207 LAF-208'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Rule</th><th>Trigger</th><th>Completion criteria</th><th>Reward</th><th>Valid</th><th data-req="LAF-55 LAF-159">Budget used</th><th>Status</th><th></th></tr></thead><tbody>' +
+    gr.map((g, i) => '<tr data-req="' + g.rows + '"><td><b>' + g.name + '</b><small>' + g.type + '</small></td><td>' + g.trig + '</td><td class="wrap" style="min-width:15rem">' + g.crit + '</td><td>' + g.reward + '</td><td class="num">' + g.from + '<small>to ' + g.to + '</small></td><td class="num" data-req="LAF-55 LAF-159">' + (g.used || 0) + '%<small>of ' + (g.budget || '–') + ' points</small></td><td>' + stBadge(g.st) + '</td><td>' +
+      (g.st === 'Draft' ? '<button class="btn" data-gtest="' + p.id + ':' + i + '" data-req="LAF-208">Test</button>' : g.st === 'Tested' ? '<button class="btn pri" data-goffer="' + p.id + ':' + i + '" data-req="LAF-208">Offer to bank</button>' : g.st === 'Offered to bank' ? '<span class="sm muted">Waiting for the bank</span>' : '<span class="sm muted">Live in the bank app</span>') + '</td></tr>').join('') + '</tbody></table></div>' +
+    (S.gtest ? '<div class="note" data-req="LAF-208">Test of ' + S.gtest + ' on the last 90 days: 4,812 customers would complete it. Reward cost: 4.8M points, funded by ' + p.bank + '.</div>' : '') +
+    '<div class="hrow"><button class="btn" data-sheet="grule:' + p.id + '">' + svg(I.plus) + 'Add rule</button><span class="sm muted" data-req="LAF-208">A rule goes live only after the bank selects it.</span></div>', '', 'LAF-205 LAF-206 LAF-207 LAF-208') : '';
+  const ev = EVENTS[p.id] || [];
+  const events = p.mods.game && ev.length ? card('Event Rewards', 'Points for non-payment events that the bank sends: life events, product events, referrals and app use. The bank sets the points for each event and pays for them.', tagB('LAF-79 LAF-209 LAF-210'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Event</th><th>Source</th><th class="r">Points</th><th>Limit</th><th>Funded by</th><th>Status</th></tr></thead><tbody>' +
+    ev.map(x => '<tr data-req="' + x[4] + '"><td><b>' + x[0] + '</b></td><td>' + x[1] + '</td><td class="r num">' + x[2] + '</td><td>' + x[3] + '</td><td>' + p.bank + '</td><td>' + stBadge('Live') + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<div class="hrow"><button class="btn" data-toast="Event reward drafted. The bank confirms the points and the funding.">' + svg(I.plus) + 'Add event reward</button><span class="sm muted" data-req="LAF-79">The bank sends each event by API or file.</span></div>', '', 'LAF-79 LAF-209 LAF-210') : '';
+  const hist = card('Change History', 'Before and after values, the user and the time for each change.', tagB('LIT-89') + tagB('LAF-100'),
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Time</th><th>User</th><th>Object</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody>' +
+    p.hist.map(h => '<tr data-req="' + h[6] + '"><td class="num">' + h[0] + '</td><td>' + h[1] + '</td><td><b>' + h[2] + '</b></td><td>' + h[3] + '</td><td class="muted">' + h[4] + '</td><td><b>' + h[5] + '</b></td></tr>').join('') + '</tbody></table></div>', '', 'LIT-89 LAF-100');
+  return head('<a href="#" data-go="programmes" class="lnk">Programmes</a>', p.name, p.bank + ', UAE. Lune operations configures the programme. The bank sees it read only in LuneHub, Loyalty Programmes.', legend(), stBadge(p.st)) +
+    '<div class="content"><div class="row2">' + entity + modules + '</div>' + points + rates + tiers + game + events + hist + '</div>';
+}
+
+/* ---------- 4. Operations ---------- */
+function pgOps() {
+  const T = [['exceptions', 'Refunds for review'], ['events', 'Event rewards'], ['reprocess', 'Reprocess'], ['pause', 'Suspend bank activity']];
+  let body = '';
+  if (S.otab === 'exceptions') {
+    const open = REFUNDS.filter(x => x.st !== 'Resolved').length;
+    body = '<div class="mrow">' + mc('Refunds for review', open, 'Across all banks', 'OM-11.11 CL-9.18') + mc('Resolved, last 7 days', '12', '', 'CL-9.18') + '</div>' +
+      card('Refunds for Review', 'A queue holds refunds that need review. Resolve each one here, or reprocess the offer and date.', tagB('OM-11.11 CL-9.18'),
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Refund</th><th>Bank</th><th>Offer</th><th>Transaction</th><th data-req="LAF-113">Reward reference</th><th class="r">Amount</th><th data-req="LAF-163">Reason</th><th>Received</th><th>Status</th><th></th></tr></thead><tbody>' +
+        REFUNDS.map((x, i) => '<tr data-req="OM-11.11 CL-9.18"><td><b>' + x.id + '</b></td><td>' + x.bank + '</td><td>' + x.ref + '</td><td class="num">' + x.tx + '</td><td data-req="LAF-113" style="white-space:nowrap">' + (x.nolink ? '<span class="muted">No linked reward</span>' : '<span class="num">' + rwdTx(x.tx) + '</span>') + '</td><td class="r num">' + x.amount + '</td><td data-req="LAF-163" style="min-width:13rem">' + x.reason + '</td><td class="num">' + x.date + '</td><td>' + stBadge(x.st) + '</td><td><div class="hrow">' + (x.st === 'Resolved' ? '' : '<button class="btn" data-exc="' + i + '" data-req="CL-9.18">Resolve</button><button class="btn ghost" data-rp="' + x.off + ':' + x.iso + '" data-req="OM-11.11 OM-4.12">Reprocess offer and date</button>') + '</div></td></tr>').join('') + '</tbody></table></div>', '', 'OM-11.11 CL-9.18') +
+      card('Promo Code Availability', 'Read from the affiliate network feed. Lune stops showing a code when it expires or runs out. Low availability alerts the support team.', tagB('OM-10.4 OM-4.11'),
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Campaign</th><th>Network</th><th>Banks and programmes</th><th>Code type</th><th class="r">Received</th><th class="r">Remaining</th><th>Valid till</th><th>Status</th></tr></thead><tbody>' +
+        AFF.filter(a => a.type === 'Code').map(a => { const pc = a.rem / a.qty; return '<tr data-req="OM-10.4 OM-4.11"><td><b>' + a.m + ' · ' + a.c + '</b><small>' + a.id + '</small></td><td>' + a.net + '</td><td class="wrap" style="min-width:11rem">' + (a.as.length ? a.as.map(x => x[0] + ' · ' + x[1]).join('<br>') : '<span class="muted">Not assigned</span>') + '</td><td>' + a.code + '</td><td class="r num">' + n0(a.qty) + '</td><td class="r num">' + n0(a.rem) + ' <span class="sm muted">(' + Math.round(pc * 100) + '%)</span></td><td class="num">' + dmy(a.to) + '</td><td class="wrap">' + (pc < 0.1 ? '<span class="badge warn">Low</span> <span class="sm muted">Alert sent to the support team</span>' : stBadge('Active')) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<p class="fhint" data-req="OM-8.16">Code renewal is coordinated with the merchant or the network partner before expiry.</p>', '', 'OM-10.4 OM-4.11 OM-8.16');
+  }
+  if (S.otab === 'events') {
+    const f = S.ev, EP = PROGS.filter(p => (EVENTS[p.id] || []).length);
+    const evOf = x => EVENTS[x[1]][x[3]], plus = (iso, mo) => { const [y, m, dd] = iso.split('-').map(Number), d2 = new Date(Date.UTC(y, m - 1 + mo, dd)); return d2.toISOString().slice(0, 10); };
+    const names = [...new Set(EP.flatMap(p => EVENTS[p.id].map(e => e[0])))];
+    const lotId = x => (x[5] === 'Rejected' || x[5] === 'Pending' ? '' : 'LOT-' + x[7]);
+    /* One reward reference for each posted or reversed entry. A rejected entry has none, because nothing posted. */
+    const rwdId = x => (x[5] === 'Posted' || x[5] === 'Reversed' ? RWD(x[7]) : '');
+    const rwdCell = x => x[5] === 'Rejected' ? '<span class="muted">No reward</span>' : x[5] === 'Pending' ? '<span class="muted">On posting</span>' : '<span class="num">' + rwdId(x) + '</span>';
+    const lot = x => { const p = PROGS.find(q => q.id === x[1]); return x[5] === 'Rejected' ? '<span class="muted">No lot</span>' : x[5] === 'Pending' ? '<span class="muted">On posting</span>' : '<span class="num">' + lotId(x) + '</span><small>' + (x[5] === 'Reversed' ? 'Reversed' : 'Expires ' + dmy(plus(x[0], p.pts.months))) + '</small>'; };
+    const q = f.q.trim().toLowerCase();
+    const L = EVL.filter(x => (!f.prog || x[1] === f.prog) && (!f.ev || evOf(x)[0] === f.ev) && (!f.st || x[5] === f.st) && (!f.from || x[0] >= f.from) && (!f.to || x[0] <= f.to) && (!q || (x[2] + ' ' + lotId(x) + ' ' + rwdId(x)).toLowerCase().includes(q)));
+    const per = S.evPer, pages = Math.max(1, Math.ceil(L.length / per)), page = Math.min(Math.max(1, f.page), pages), first = (page - 1) * per, V = L.slice(first, first + per);
+    const tot = names.map(n => { const r = L.filter(x => evOf(x)[0] === n), ok = r.filter(x => x[5] === 'Posted'); return [n, r.length, ok.length, ok.reduce((t, x) => t + x[4], 0)]; }).filter(r => r[1]);
+    body = card('Event Reward Ledger', 'Each posted event reward is a points lot in the same ledger as purchase points.', tagB('LAF-79 LAF-210') + tagB('LAF-113'),
+        '<div class="search" style="align-items:flex-end"><input class="field" id="evq" type="search" placeholder="Search customer ID, points lot ID or reward reference" aria-label="Search customer ID, points lot ID or reward reference" value="' + esc(f.q) + '" autocomplete="off">' +
+        sel('evprog', '', [['', 'Programme: All']].concat(EP.map(p => [p.id, p.bank + ' · ' + p.name])), f.prog, '', 'aria-label="Programme" style="width:15rem"') +
+        sel('evev', '', [['', 'Event: All']].concat(names.map(n => [n, n])), f.ev, '', 'aria-label="Event" style="width:15rem"') +
+        sel('evst', '', [['', 'Status: All'], 'Posted', 'Pending', 'Reversed', 'Rejected'], f.st, '', 'aria-label="Status" style="width:11rem"') +
+        inp('evfrom', 'From', f.from, '', 'type="date" style="width:9.5rem"') + inp('evto', 'To', f.to, '', 'type="date" style="width:9.5rem"') +
+        '<button class="btn ghost" data-evreset>Reset filters</button></div>' +
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Bank and programme</th><th>Customer</th><th>Event and source</th><th class="r">Points</th><th data-req="LAF-113">Points lot</th><th data-req="LAF-113">Reward reference</th><th>Funded by</th><th>Status</th></tr></thead><tbody>' +
+        (V.length ? V.map(x => { const p = PROGS.find(q => q.id === x[1]), e = evOf(x); return '<tr data-req="' + e[4] + '"><td class="num" style="white-space:nowrap">' + dmy(x[0]) + '</td><td><b>' + p.bank + '</b><small>' + p.name + '</small></td><td class="num">' + x[2] + '</td><td class="wrap" style="min-width:10rem">' + e[0] + '<small>' + e[1] + '</small></td><td class="r num">' + (x[5] === 'Rejected' ? '<span class="muted">0</span>' : n0(x[4])) + '</td><td data-req="LAF-113" style="white-space:nowrap">' + lot(x) + '</td><td data-req="LAF-113" style="white-space:nowrap">' + rwdCell(x) + '</td><td>' + p.bank + '</td><td style="min-width:10rem">' + stBadge(x[5]) + (x[6] ? '<small>' + x[6] + '</small>' : '') + '</td></tr>'; }).join('')
+          : '<tr><td colspan="9" class="muted">No event rewards match these filters.</td></tr>') + '</tbody></table></div>' +
+        '<div class="hrow sm muted"><span>' + (L.length ? 'Showing ' + n0(first + 1) + ' to ' + n0(first + V.length) + ' of ' + n0(L.length) + ' entries' : 'Showing 0 of 0 entries') + '</span><span class="sp"></span>' +
+        '<button class="btn ghost" data-evpage="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>Previous</button>' +
+        '<span>Page ' + n0(page) + ' of ' + n0(pages) + '</span>' +
+        '<button class="btn ghost" data-evpage="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>', '', 'LAF-79 LAF-210 LAF-113') +
+      card('Totals per Event', '', tagB('LAF-210'),
+        '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Event</th><th class="r">Entries</th><th class="r">Posted</th><th class="r">Points posted</th></tr></thead><tbody>' +
+        (tot.length ? tot.map(r => '<tr data-req="LAF-210"><td><b>' + r[0] + '</b></td><td class="r num">' + n0(r[1]) + '</td><td class="r num">' + n0(r[2]) + '</td><td class="r num">' + n0(r[3]) + '</td></tr>').join('') +
+          '<tr><td><b>All events</b></td><td class="r num b">' + n0(tot.reduce((t, r) => t + r[1], 0)) + '</td><td class="r num b">' + n0(tot.reduce((t, r) => t + r[2], 0)) + '</td><td class="r num b">' + n0(tot.reduce((t, r) => t + r[3], 0)) + '</td></tr>'
+          : '<tr><td colspan="4" class="muted">No event rewards match these filters.</td></tr>') + '</tbody></table></div>', '', 'LAF-210');
+  }
+  if (S.otab === 'reprocess') body =
+    card('Reprocess an Offer and Date', 'Re-run cashback matching for one offer and date. Each transaction can earn cashback only once.', tagB('OM-4.12 CL-9.8 OM-11.11'),
+      '<div class="row3">' + sel('rpOff', 'Offer', OFFERS.filter(o => ['Offer live', 'Offer completed'].includes(o.st)).map(o => [o.id, o.t + ' · ' + o.bank]), S.reproc.off, 'OM-4.12 OM-11.11') + inp('rpDate', 'Date', S.reproc.date, 'OM-4.12 CL-9.8', 'type="date"') + sel('rpSrc', 'Source', [['run', 'Re-run cashback'], ['file', 'Replay the transaction file, then re-run']], 'run', 'CL-9.8') + '</div>' +
+      '<div class="hrow"><button class="btn pri" data-reproc>Reprocess</button><span class="sm muted">Deduplication by transaction ID prevents double cashback.</span></div>' +
+      (S.reproc.done ? '<div class="note" data-req="OM-4.12">Reprocess complete: 18,402 transactions checked, 37 new cashback entries, 0 duplicates.</div>' : ''), '', 'OM-4.12 CL-9.8 OM-11.11') +
+    card('Recent Runs', 'A failed matching run retries automatically.', tagB('OM-4.12'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Run</th><th>Bank</th><th>Started</th><th>Trigger</th><th>Result</th></tr></thead><tbody>' + [['Daily run', 'Oasis Bank', 'Today 06:05', 'Schedule', 'Retry 1 of 3 running'], ['Daily run', 'Nova Bank', 'Today 05:58', 'Schedule', 'Completed'], ['Reprocess CR-1039, 07 Nov', 'Nova Bank', 'Yesterday 15:20', 'Sara Khalil', 'Completed']].map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + stBadge(r[4] === 'Completed' ? 'Completed' : 'In progress') + ' <span class="sm muted">' + (r[4] === 'Completed' ? '' : r[4]) + '</span></td></tr>').join('') + '</tbody></table></div>', '', 'OM-4.12');
+  if (S.otab === 'pause') body =
+    card('Suspend All Activity for a Bank', 'Lune operations can suspend all activity for a bank at once. All history stays.', tagB('OM-11.7 CL-11.24 LAF-17'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Bank</th><th>Programmes</th><th class="r">Live offers</th><th>Status</th><th></th></tr></thead><tbody>' +
+      BANKS.map(b => { const ps = PROGS.filter(p => p.bank === b.name), on = ps.some(p => p.st === 'Live'); return '<tr data-req="OM-11.7 CL-11.24"><td><b>' + b.name + '</b><small>' + b.tid + '</small></td><td class="wrap">' + ps.map(p => esc(p.name)).join('<br>') + '</td><td class="r num">' + (on ? n0(b.live || 0) : '0') + '</td><td>' + stBadge(on ? 'Live' : 'Suspended') + '</td><td>' + (on ? '<button class="btn" data-bst="' + esc(b.name) + ':Suspended" data-req="OM-11.7 CL-11.24">Suspend all activity</button>' : '<button class="btn pri" data-bst="' + esc(b.name) + ':Live" data-req="LAF-17">Reactivate</button>') + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+      '<p class="fhint" data-req="LAF-17 LIT-89">This suspends every programme of the bank. To suspend one programme, open it under Programmes. Each change goes into the programme change history with user and time.</p>', '', 'OM-11.7 CL-11.24 LAF-17');
+  return head('', 'Operations', 'Refunds for review, event rewards, reprocessing and bank suspension across all banks.', legend()) +
+    '<div class="content">' + tabs('o', T, S.otab) + body + '</div>';
+}
+
+/* ---------- 5. Admin Users (real page) ---------- */
+function pgUsers() {
+  return head('', 'Admin Users', 'Lune operations users of Pulse Admin.', '<button class="btn pri" data-sheet="adduser">' + svg(I.plus) + 'Invite admin user</button>') +
+    '<div class="content">' + legend() +
+    card('Admin Users', 'Admin reader, Admin writer and Super admin. Lune staff sign in through company single sign-on.', tagB('CL-9.14 OM-1.7') + tagB('CL-15.8'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Email</th><th data-req="CL-9.14 OM-1.7">Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody>' +
+      ADMINS.map((u, i) => '<tr><td><b>' + u[0] + '</b></td><td><select class="trigger" data-urole="' + i + '" aria-label="Role of ' + u[0] + '" style="width:10rem;height:2.25rem">' + ['Admin reader', 'Admin writer', 'Super admin'].map(r => '<option' + (u[1] === r ? ' selected' : '') + '>' + r + '</option>').join('') + '</select></td><td class="num">' + u[2] + '</td><td><button class="btn ghost" data-toast="Admin user removed.">Remove</button></td></tr>').join('') + '</tbody></table></div>' +
+      '<p class="sm muted" data-req="LAF-9">Only authorised Lune operations staff work across tenants. Their access is logged.</p>', '', 'CL-9.14 OM-1.7 CL-15.8 LAF-9') +
+    '<div class="grid2">' + card('Role Permissions', 'What each role can do.', tagB('CL-9.14 OM-1.7'),
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Permission</th><th>Admin reader</th><th>Admin writer</th><th>Super admin</th></tr></thead><tbody>' + [['See campaign requests, merchants, portfolio', 1, 1, 1], ['Create offers and send to bank', 0, 1, 1], ['Approve and revoke merchants', 0, 1, 1], ['Emergency pause', 0, 0, 1], ['Manage admin users', 0, 0, 1]].map(r => '<tr><td>' + r[0] + '</td>' + r.slice(1).map(v => '<td>' + (v ? '<span style="color:var(--primary);display:inline-block;width:1rem;height:1rem">' + svg(I.check) + '</span>' : '<span class="muted">·</span>') + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>', '', 'CL-9.14 OM-1.7') +
+    planCard('Configurable Roles', 'Create roles with chosen permissions, including audit roles.', 'CL-9.14',
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Role</th><th>Scope</th><th>Access</th></tr></thead><tbody>' + [['Auditor', 'All banks in the market', 'Read only, audit history']].map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table></div><div><button class="btn" data-toast="New role drafted.">' + svg(I.plus) + 'New role</button></div>') + '</div></div>';
+}
+
+/* ---------- Gamification rule editor (LAF-205 to LAF-208) ---------- */
+const GR_MEAS = { 'Card transaction': ['Number of purchases', 'Total spend (AED)', 'Different merchants'], 'Digital engagement': ['App logins', 'Offers activated'], 'Product holding': ['Products opened'], 'Relationship': ['Product opened and card spend (AED)'], 'Behaviour': ['Months with card spend'] };
+const GR_WHERE = ['Any participating merchant', 'Category: Dining', 'Category: Groceries', 'Category: Coffee shops', 'Category: Travel', 'Merchant: Coffee Planet', 'Merchant: Grandiose'];
+const grSummary = g => {
+  const who = (g.cards === 'All Nova Rewards cards' ? 'Customers' : g.cards + ' customers') + (g.tier === 'All tiers' ? '' : ' (' + g.tier.toLowerCase() + ')');
+  const where = g.trig === 'Card transaction' && g.where !== 'Any participating merchant' ? ' at ' + g.where.replace(/^(Category|Merchant): /, '') : g.trig === 'Card transaction' ? ' at participating merchants' : '';
+  const goal = g.type === 'Streak' ? 'make at least ' + g.min + ' ' + (g.trig === 'Card transaction' ? 'purchase' : g.meas.toLowerCase()) + (+g.min > 1 ? 's' : '') + where + ' every ' + g.per.toLowerCase() + ' for ' + g.runs + ' ' + g.per.toLowerCase() + 's in a row' + (+g.grace ? ', with ' + g.grace + ' missed ' + g.per.toLowerCase() + ' allowed' : '')
+    : ({ 'Number of purchases': 'make ' + g.target + ' purchases' + where, 'Total spend (AED)': 'spend AED ' + n0(+g.target) + where, 'Different merchants': 'shop at ' + g.target + ' different merchants', 'App logins': 'log in to the app ' + g.target + ' times', 'Offers activated': 'activate ' + g.target + ' offers', 'Products opened': 'open ' + g.target + ' new product' + (+g.target > 1 ? 's' : ''), 'Product opened and card spend (AED)': 'open a new product and spend AED ' + n0(+g.target) + ' on the card', 'Months with card spend': 'use the card in ' + g.target + ' months' }[g.meas] || g.meas) + ' ' + g.win.toLowerCase();
+  const rew = g.rtype === 'Badge' ? 'the ' + g.badge + ' badge' : g.rtype === 'Badge and points' ? 'the ' + g.badge + ' badge and ' + g.pts + ' points' : g.pts + ' points' + (g.type === 'Streak' && g.steps ? ' (' + g.steps + ')' : '');
+  return who + ' who ' + goal + ' get ' + rew + '. Valid ' + dmy(g.from) + ' to ' + dmy(g.to) + '.';
+};
+function grSheet() {
+  const g = S.gr, meas = GR_MEAS[g.trig] || GR_MEAS['Card transaction'];
+  if (!meas.includes(g.meas)) g.meas = meas[0];
+  const step = (n, t, rows, body) => '<fieldset class="fg grstep" data-req="' + rows + '" style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0"><legend class="flabel" style="padding:0 6px">' + n + '. ' + t + '</legend>' + body + '</fieldset>';
+  return '<style>.grstep .row2{grid-template-columns:repeat(2,minmax(0,1fr))}.grstep .row3{grid-template-columns:repeat(3,minmax(0,1fr))}.grstep select,.grstep input{width:100%;min-width:0}</style><div class="tags">' + tagB('LAF-205 LAF-206') + tagB('LAF-207 LAF-208') + '</div>' +
+    step(1, 'Who can take part', 'LAF-205', '<div class="row2">' + sel('grCards', 'Card products', ['All Nova Rewards cards', 'Nova Platinum Credit', 'Nova World Elite', 'Nova Signature Credit'], g.cards, 'LAF-205') + sel('grTier', 'Tier', ['All tiers', 'Silver and above', 'Gold and above', 'Platinum'], g.tier, 'LAF-205') + '</div>') +
+    step(2, 'Goal', 'LAF-205 LAF-206', '<div class="row2">' + sel('grType', 'Rule type', ['Mission', 'Streak', 'Badge'], g.type, 'LAF-205 LAF-206 LAF-207') + sel('grTrig', 'Event that counts', Object.keys(GR_MEAS), g.trig, 'LAF-205 LAF-79') + sel('grMeas', 'What counts', meas, g.meas, 'LAF-205') +
+      (g.trig === 'Card transaction' ? sel('grWhere', 'Where', GR_WHERE, g.where, 'LAF-205') : '') + '</div>' +
+      (g.type === 'Streak'
+        ? '<div class="row3">' + sel('grPer', 'Each', ['Week', 'Month'], g.per, 'LAF-206') + inp('grMin', 'At least, each ' + g.per.toLowerCase(), g.min, 'LAF-206', 'type="number" inputmode="numeric" min="1"') + inp('grRuns', g.per + 's in a row', g.runs, 'LAF-206', 'type="number" inputmode="numeric" min="2"') + '</div>' +
+          '<div class="row2">' + sel('grGrace', 'Missed ' + g.per.toLowerCase() + 's allowed', ['0', '1', '2'], g.grace, 'LAF-206') + '<div class="fg" data-req="LAF-206"><span class="flabel">Resets when</span><p class="sm" style="margin:8px 0 0">More ' + g.per.toLowerCase() + 's are missed than allowed</p></div></div>'
+        : '<div class="row2">' + inp('grTarget', 'Target', g.target, 'LAF-205 LAF-207', 'type="number" inputmode="numeric" min="1"') + sel('grWin', 'Time window', ['In a calendar month', 'In 30 days', 'In 90 days', 'Before the rule ends'], g.win, 'LAF-205') + '</div>')) +
+    step(3, 'Reward', 'LAF-205 LAF-206 LAF-207', '<div class="row2">' + sel('grRtype', 'Reward', g.type === 'Badge' ? ['Badge', 'Badge and points'] : ['Points', 'Badge and points'], g.rtype, 'LAF-205 LAF-207') +
+      (g.rtype !== 'Badge' ? inp('grPts', 'Points', g.pts, 'LAF-205', 'type="number" inputmode="numeric" min="1"') : '') + (g.rtype !== 'Points' ? inp('grBadge', 'Badge name', g.badge, 'LAF-207') : '') +
+      (g.type === 'Streak' ? inp('grSteps', 'Reward thresholds', g.steps, 'LAF-206', '', 'Points at steps on the way, for example week 2: 50') : '') + '</div>' +
+      inp('grBudget', 'Points budget for this rule', g.budget, 'LAF-55 LAF-159', 'type="number" inputmode="numeric" min="1"', 'The rule closes when the budget is used up.') +
+      '<p class="sm muted" data-req="LAF-79 LAF-209">' + PROGS[0].bank + ' funds the points. Each customer completes a rule once.</p>') +
+    step(4, 'In the bank app', 'LAF-207', '<div class="row2">' + inp('grName', 'Name', g.name, 'LAF-207') + inp('grDesc', 'Short description', g.desc, 'LAF-207') + inp('grFrom', 'Valid from', g.from, 'LAF-205', 'type="date"') + inp('grTo', 'Valid to', g.to, 'LAF-205', 'type="date"') + '</div>' +
+      '<p class="sm muted" data-req="LAF-207">The app shows progress, for example 2 of ' + (g.type === 'Streak' ? g.runs : g.target) + ', and the badge when earned.</p>') +
+    (S.grErr ? '<div class="note" data-req="LAF-98" style="background:#fdecec;color:#8a1c1c">' + esc(S.grErr) + '</div>' : '') +
+    '<div class="note" data-req="LAF-205 LAF-208"><b>Rule:</b> ' + esc(grSummary(g)) + ' Budget ' + n0(+g.budget || 0) + ' points.</div>' +
+    (S.grTried ? '<div class="note" data-req="LAF-208">Test on the last 90 days: 3,940 customers would complete it. Cost: ' + n0(3940 * (+g.pts || 0)) + ' points.</div>' : '') +
+    '<p class="sm muted" data-req="LAF-208">No code change. After the test, offer the rule to the bank. It goes live when the bank selects it in LuneHub.</p>';
+}
+
+/* ---------- Sheets ---------- */
+function sheet() {
+  const s = S.sheet; if (!s) return '';
+  let h = '', b = '', f = '';
+  if (s === 'invite') { h = 'Invite Merchant'; b = '<div class="tags">' + tagB('OM-3.1') + '</div>' + inp('ivLegal', 'Legal name', 'Arabica Coffee Trading LLC', 'OM-3.1') + inp('ivTrade', 'Trading name', '%Arabica', 'OM-3.1') + sel('ivRegion', 'Region', ['UAE'], 'UAE', 'OM-3.1') + inp('ivLogo', 'Logo', 'arabica-logo.png', 'OM-3.1', 'readonly') + inp('ivUser', 'Account user email', 'owner@arabica.ae', 'OM-3.1', 'type="email" inputmode="email"') +
+      '<p class="sm muted" data-req="OM-3.1">The merchant can also self-register in the merchant portal.</p><div class="note" data-req="OM-3.2">The merchant stays Pending approval until Lune operations records the compliance screening.</div>'; f = '<button class="btn pri" data-invite>Send invitation</button>'; }
+  if (s.startsWith('mact:')) { const [, id, act] = s.split(':'); const m = MERCHANTS.find(x => x.id === id); h = act.charAt(0).toUpperCase() + act.slice(1) + ': ' + m.name; b = '<div class="tags">' + tagB('OM-3.3') + '</div>' + sel('mReason', 'Reason code', act === 'Approve' ? ['Onboarding checks complete'] : act === 'Reject' ? ['Failed compliance screening', 'Incomplete documents', 'Duplicate merchant'] : act === 'Revoke access' ? ['Compliance status changed', 'Merchant request', 'Contract ended'] : ['Compliance issue resolved', 'Merchant request'], '', 'OM-3.3') + '<div class="fg"><label for="mNote">Comment</label><textarea class="field textarea" id="mNote"></textarea></div>' + (act === 'Revoke access' ? '<div class="note dep">Deactivates this merchant and all associated users. All active API tokens are revoked immediately.</div>' : '') + '<p class="sm muted">The action and reason go into the audit history.</p>'; f = '<button class="btn pri" data-mact="' + id + ':' + act + '">' + act.charAt(0).toUpperCase() + act.slice(1) + '</button>'; }
+  if (s.startsWith('grule:')) { h = 'Add Rule'; b = grSheet(); f = '<button class="btn" data-gtry>Test</button><button class="btn pri" data-gsave="' + s.slice(6) + '">Save draft</button>'; }
+  if (s.startsWith('aff:')) { const a = AFF.find(x => x.id === s.slice(4)); h = a.m + ' · ' + a.c; b = affSheet(a); f = '<button class="btn pri" data-afsave="' + a.id + '">Save assignment</button>'; }
+  if (s.startsWith('rcbulk:')) {
+    const [, pid, act] = s.split(':'), p = PROGS.find(x => x.id === pid), L = rcMatch(p), on = act === 'include';
+    h = on ? 'Include matching items' : 'Exclude matching items';
+    b = '<div class="tags">' + tagB('RC-25') + tagB('RC-20') + '</div><dl class="kv"><dt>Programme</dt><dd>' + p.bank + ' · ' + p.name + '</dd>' +
+      '<dt>Items affected</dt><dd><b>' + n0(L.length) + '</b> of ' + n0(progItems(pid).length) + ' items in this programme</dd>' +
+      '<dt>Filters now</dt><dd>' + rcFilterText() + '</dd><dt>Change</dt><dd>' + (on ? 'Included and shown to the bank customers' : 'Excluded and hidden from the bank customers') + '</dd></dl>' +
+      '<div class="note" data-req="RC-20">' + (on ? 'An included item appears in the catalogue and takes orders.' : 'An excluded item does not appear to the bank customers and takes no orders. Pulse also clears its rank.') + '</div>' +
+      '<p class="sm muted" data-req="RC-25">The action applies to the ' + n0(L.length) + ' matching item' + (L.length === 1 ? '' : 's') + ' only. Items outside the filters do not change.</p>';
+    f = '<button class="btn pri" data-rcbulk="' + pid + ':' + act + '"' + (L.length ? '' : ' disabled') + '>' + (on ? 'Include ' : 'Exclude ') + n0(L.length) + ' item' + (L.length === 1 ? '' : 's') + '</button>';
+  }
+  if (s === 'adduser') { h = 'Invite Admin User'; b = '<div class="tags">' + tagB('CL-9.14 CL-15.8') + '</div>' + inp('auEmail', 'Work email', 'new.user@lunedata.io', 'CL-15.8', 'type="email" inputmode="email"') + sel('auRole', 'Role', ['Admin reader', 'Admin writer', 'Super admin'], 'Admin reader', 'CL-9.14') + '<p class="sm muted">The user signs in through company single sign-on.</p>'; f = '<button class="btn pri" data-toast="Invitation sent." data-close>Invite</button>'; }
+  if (s === 'reject') { h = 'Reject with Reason'; b = '<div class="tags">' + tagB('CL-11.21') + '</div><div class="fg"><label for="rjWhy">Reason</label><textarea class="field textarea" id="rjWhy">Cover image does not meet brand guidelines.</textarea></div><p class="sm muted">The reason goes to the merchant.</p>'; f = '<button class="btn pri" data-toast="Rejected. The reason goes to the merchant." data-close>Reject</button>'; }
+  if (s.startsWith('sendbank:')) {
+    const o = findOffer(s.slice(9)), have = bnames(o), left = BANKS.filter(b => !have.includes(b.name));
+    h = have.length ? 'Send to another bank' : 'Send to banks';
+    b = '<div class="tags">' + tagB('OM-2.1 MS-55') + tagB('OM-2.8') + '</div><dl class="kv"><dt>Offer</dt><dd>' + esc(o.t) + '</dd><dt>Banks now</dt><dd>' + (have.length ? have.join(', ') : 'None yet') + '</dd></dl>' +
+      (left.length ? '<fieldset class="fg" data-req="OM-2.1 MS-55"><legend class="flabel">Tenants (banks)</legend><div class="tchk" style="grid-template-columns:minmax(0,1fr)">' + left.map(x => { const off = progOf(x.name).st === 'Suspended'; return '<label class="tck"><input type="checkbox" data-pick="' + esc(x.name) + '"' + (S.pick.includes(x.name) ? ' checked' : '') + (off ? ' disabled' : '') + '><span><b>' + x.name + '</b><small>' + x.tid + (off ? ' · Programme suspended' : ' · ' + x.prog) + '</small></span></label>'; }).join('') + '</div><p class="fhint">The offer goes to each bank for its own review. The bank chooses the programme when it approves.</p></fieldset>' +
+        '<div class="note" data-req="OM-2.8 CL-11.3 CL-3.13">Each bank reviews the offer in LuneHub and selects card programmes or BINs. The offer keeps the same offer ID at every bank.</div>'
+        : '<p class="sm muted">This offer is already at every bank.</p>');
+    f = left.length ? '<button class="btn pri" data-sendbanks="' + o.id + '"' + (S.pick.length ? '' : ' disabled') + '>' + (S.pick.length > 1 ? 'Send to ' + S.pick.length + ' banks' : 'Send to bank') + '</button>' : '';
+  }
+  return '<div class="overlay" data-close></div><aside class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(h) + '"><div class="sh-h"><h2>' + h + '</h2><button class="x" data-close aria-label="Close">' + svg(I.x) + '</button></div><div class="sh-b">' + b + '</div>' + (f ? '<div class="sh-f"><div class="hrow">' + f + '<button class="btn" data-close>Cancel</button></div></div>' : '') + '</aside>';
+}
+
+/* ---------- Render ---------- */
+function render() {
+  const r = route();
+  if (r.page.startsWith('mc-')) { history.replaceState(null, '', '#requests'); r.page = 'requests'; }
+  if (r.page === 'sourced' || (r.page === 'merchants' && r.a === 'sourced')) { S.of.st = 'To validate'; history.replaceState(null, '', '#offers'); r.page = 'offers'; r.a = ''; }
+  if (r.page === 'operations' && r.a) S.otab = r.a;
+  if (r.page === 'affiliate' && r.a) S.atab = r.a;
+  if (r.page === 'redemption' && r.a) S.rtab = r.a;
+  S.rprog = r.page === 'redemption' && r.a === 'catalogues' ? r.b : '';
+  $('#side').innerHTML = side(r);
+  $('#top').innerHTML = top();
+  const PG = { requests: pgRequests, request: () => pgRequest(r.a), offers: pgOffers, merchants: pgMerchants, merchant: () => pgMerchant(r.a), users: pgUsers, portfolio: pgPortfolio, programmes: pgProgrammes, programme: () => pgProgramme(r.a), operations: pgOps, affiliate: pgAffiliate, redemption: pgRedemption };
+  $('#main').innerHTML = (PG[r.page] || pgRequests)();
+  $('#sheet-host').innerHTML = sheet();
+}
+function toast(m) { const h = $('#toast-host'); h.innerHTML = '<div class="toast" role="status">' + esc(m) + '</div>'; clearTimeout(toast.t); toast.t = setTimeout(() => { h.innerHTML = ''; }, 3200); }
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const row = e.target.closest('[data-row]');
+  const t = e.target.closest('button, a, [data-close]');
+  const afr = e.target.closest('[data-afrow]');
+  if (!t && afr) { S.sheet = 'aff:' + afr.dataset.afrow; S.afPick = AFF.find(x => x.id === afr.dataset.afrow).as.map(x => x[0] + '|' + x[1]); return render(); }
+  if (!t && row) return go(row.dataset.row);
+  if (!t) return;
+  const d = t.dataset;
+  if (t.tagName === 'A') e.preventDefault();
+  if (d.go) { S.sheet = null; return go(d.go); }
+  if ('close' in d) { S.sheet = null; render(); if (d.toast) toast(d.toast); return; }
+  if (d.toast) return toast(d.toast);
+  if (d.sheet) { S.sheet = d.sheet; S.pick = []; if (d.sheet.startsWith('aff:')) S.afPick = AFF.find(x => x.id === d.sheet.slice(4)).as.map(x => x[0] + '|' + x[1]); return render(); }
+  if ('afreset' in d) { S.af = { q: '', net: '', bank: '' }; return render(); }
+  if ('apreset' in d) { S.ap = { q: '', net: '', bank: '', st: '', page: 1 }; return render(); }
+  if (d.appage) { S.ap.page = +d.appage; return render(); }
+  if ('rireset' in d) { S.ri = { q: '', sup: '', mkt: '', cat: '', page: 1 }; return render(); }
+  if (d.ripage) { S.ri.page = +d.ripage; return render(); }
+  if ('rcreset' in d) { S.rc = { q: '', sup: '', mkt: '', cat: '', inc: '', page: 1 }; return render(); }
+  if (d.rcpage) { S.rc.page = +d.rcpage; return render(); }
+  if (d.pinc) { const [pid, id] = d.pinc.split('|'), x = pexOf(pid), was = !!x[id];
+    if (was) delete x[id]; else { x[id] = 1; const a = prankOf(pid), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); }
+    render(); return toast(citem(id).name + ' · ' + id + ' is ' + (was ? 'included in' : 'excluded from') + ' ' + (PROGS.find(y => y.id === pid) || {}).name + '.'); }
+  if (d.prk) { const [pid, id, k] = d.prk.split('|'), a = prankOf(pid), i = a.indexOf(id), m = +k;
+    if (m === 9) { if (i < 0) a.push(id); } else if (m === 0) { if (i >= 0) a.splice(i, 1); }
+    else { const j = i + m; if (i >= 0 && j >= 0 && j < a.length) { a[i] = a[j]; a[j] = id; } }
+    return render(); }
+  if (d.rcbulk) { const [pid, act] = d.rcbulk.split(':'), p = PROGS.find(x => x.id === pid), L = rcMatch(p), x = pexOf(pid), a = prankOf(pid);
+    L.forEach(it => { if (act === 'include') delete x[it.id]; else { x[it.id] = 1; const i = a.indexOf(it.id); if (i >= 0) a.splice(i, 1); } });
+    S.sheet = null; render(); return toast((act === 'include' ? 'Included ' : 'Excluded ') + n0(L.length) + ' item' + (L.length === 1 ? '' : 's') + ' for ' + p.name + '.'); }
+  if ('roreset' in d) { S.ro = { q: '', sup: '', st: '', page: 1 }; return render(); }
+  if (d.ropage) { S.ro.page = +d.ropage; return render(); }
+  if (d.csel) { const c = CATSEL[+d.csel]; c.on = c.on ? 0 : 1; render();
+    return toast(supOf(c.sup).name + ' · ' + c.cat + ' is ' + (c.on ? 'active' : 'not active') + ' for ' + (PROGS.find(x => x.id === c.prog) || {}).name + '.' + (c.on && !c.by ? ' Record the issuer approval.' : '')); }
+  if (d.afsave) { const a = AFF.find(x => x.id === d.afsave); a.as = S.afPick.map(k => { const [bn, pn] = k.split('|'), cur = a.as.find(x => x[0] === bn && x[1] === pn); return [bn, pn, cur ? cur[2] : 'Off']; }); S.sheet = null; render(); return toast(a.as.length ? 'Assigned to ' + a.as.length + ' programme' + (a.as.length > 1 ? 's' : '') + '. Each bank turns it on in LuneHub.' : 'Campaign removed from every bank.'); }
+  if ('evreset' in d) { S.ev = { q: '', prog: '', ev: '', st: '', from: '', to: '', page: 1 }; return render(); }
+  if (d.evpage) { S.ev.page = +d.evpage; return render(); }
+  if (d.tab) { if (d.tab === 'm') return go('merchants/' + d.v); if (d.tab === 'o') return go('operations/' + d.v); if (d.tab === 'a') return go('affiliate/' + d.v); if (d.tab === 'r') return go('redemption/' + d.v); }
+  if ('fst' in d) { S.fst = d.fst; return render(); }
+  if ('reset' in d) { S.fregion = S.fmerch = S.ftid = S.fst = ''; return render(); }
+  if (d.start) { REQS.find(x => x.id === d.start).st = 'Under review'; render(); return toast('Review started. Status: Under review.'); }
+  if (d.create) { if (!S.rv.tenants.length) { S.rv.tenErr = true; return render(); } const o = REQS.find(x => x.id === d.create); o.st = 'In bank review'; o.banks = S.rv.tenants.map(n => BK(n, 'In bank review', '10 Nov 2026')); o.bank = S.rv.tenants[0]; o.ex = S.rv.ex; o.restr = S.rv.restr; o.disp = '10 Nov 2026'; o.by = 'Sara Khalil'; render(); return toast('Offer created and sent to ' + o.banks.length + (o.banks.length === 1 ? ' bank' : ' banks') + ' for review: ' + S.rv.tenants.join(', ') + '.'); }
+  if (d.sendbanks) { const o = findOffer(d.sendbanks), n = S.pick.slice(); n.forEach(x => o.banks.push(BK(x, 'In bank review', '10 Nov 2026'))); S.sheet = null; S.pick = []; render(); return toast('Sent to ' + n.join(', ') + ' for review.'); }
+  if ('ofst' in d) { S.of.st = d.ofst; return render(); }
+  if ('ofreset' in d) { S.of = { q: '', src: '', type: '', bank: '', st: '', sort: 'new' }; return render(); }
+  if (d.tgadd) { S.rv.tg[d.tgadd].push(d.tgadd === 'sup' ? { subj: 'merchant', val: 'Lulu', days: '30' } : { subj: 'category', val: 'Dining', meas: 'count', op: 'least', v1: '2', v2: '', days: '60' }); S.rv.tested = false; return render(); }
+  if (d.tgdel) { const [k, i] = d.tgdel.split(':'); S.rv.tg[k].splice(+i, 1); S.rv.tested = false; return render(); }
+  if ('test' in d) { S.rv.tested = true; return render(); }
+  if (d.prio) { const [i, k] = d.prio.split(':').map(Number), a = S.rv.prio; [a[i], a[i + k]] = [a[i + k], a[i]]; S.rv.prioSent = false; return render(); }
+  if ('prioSend' in d) { S.rv.prioSent = true; render(); return toast('Priority change sent for approval. It applies from ' + dmy(S.rv.prioEff) + '.'); }
+  if (d.mact) { const [id, act] = d.mact.split(':'), m = MERCHANTS.find(x => x.id === id); m.st = { Approve: 'Active', Reject: 'Rejected', 'Revoke access': 'Inactive', Reactivate: 'Active' }[act]; S.sheet = null; render(); return toast(m.name + ': ' + act.toLowerCase() + ' recorded in the audit history.'); }
+  if ('invite' in d) { S.sheet = null; render(); return toast('Invitation sent. Status: Pending approval.'); }
+  if (d.validate) { SOURCED[+d.validate].val = true; render(); return toast('Sourced offer validated.'); }
+  if ('reproc' in d) { S.reproc.done = true; return render(); }
+  if (d.exc) { REFUNDS[+d.exc].st = 'Resolved'; render(); return toast(REFUNDS[+d.exc].id + ': resolved.'); }
+  if (d.rp) { const [off, date] = d.rp.split(':'); S.reproc.off = off; S.reproc.date = date; S.reproc.done = false; return go('operations/reprocess'); }
+  if (d.bst) { const [n, st] = d.bst.split(':'); PROGS.filter(x => x.bank === n).forEach(p => { p.hist.unshift(['12 Nov 2026 ' + new Date().toTimeString().slice(0, 5), 'Sara Khalil', 'Programme', 'Status', p.st, st, 'LAF-17 LIT-89']); p.st = st; p.upd = '12 Nov 2026'; }); render(); return toast(n + ': all activity ' + (st === 'Live' ? 'reactivated' : 'suspended') + '. All history stays.'); }
+  if (d.pst) { const [id, st] = d.pst.split(':'), p = PROGS.find(x => x.id === id); p.hist.unshift(['10 Nov 2026 ' + new Date().toTimeString().slice(0, 5), 'Sara Khalil', 'Programme', 'Status', p.st, st, 'LAF-17 LIT-89']); p.st = st; p.upd = '10 Nov 2026'; render(); return toast(p.name + ': ' + st.toLowerCase() + '. All history stays.'); }
+  if (d.gtest) { const [id, i] = d.gtest.split(':'), g = GAME[id][+i]; g.st = 'Tested'; S.gtest = g.name; return render(); }
+  if (d.goffer) { const [id, i] = d.goffer.split(':'), g = GAME[id][+i], p = PROGS.find(x => x.id === id); g.st = 'Offered to bank'; S.gtest = ''; p.hist.unshift(['13 Nov 2026 ' + new Date().toTimeString().slice(0, 5), 'Sara Khalil', 'Rule ' + g.name, 'Status', 'Tested', 'Offered to bank', 'LAF-208 LIT-89']); render(); return toast(g.name + ' offered to ' + p.bank + '. It goes live when the bank selects it.'); }
+  if ('gtry' in d) { S.grTried = true; return render(); }
+  if (d.gsave) { const id = d.gsave, g = S.gr, sum = grSummary(g), num = k => +String(g[k] || '').replace(/,/g, '');
+    S.grErr = !g.name.trim() ? 'Enter a name for the bank app.' : !(num(g.type === 'Streak' ? 'runs' : 'target') > 0) ? 'Enter a target above zero.' : g.rtype !== 'Badge' && !(num('pts') > 0) ? 'Enter the points for the reward.' : !(num('budget') >= num('pts')) ? 'The budget must cover at least one reward.' : g.to <= g.from ? 'The end date must be after the start date.' : '';
+    if (S.grErr) return render(); GAME[id].push({ type: g.type, name: g.name, trig: g.trig, crit: sum.replace(/^.*? who /, '').replace(/ get .*$/, '').replace(/^./, c => c.toUpperCase()), reward: g.rtype === 'Badge' ? 'Badge' : g.rtype === 'Badge and points' ? 'Badge and ' + g.pts + ' points' : g.pts + ' points', budget: n0(+g.budget), used: 0, from: dmy(g.from), to: dmy(g.to), st: S.grTried ? 'Tested' : 'Draft', rows: g.type === 'Streak' ? 'LAF-206' : g.type === 'Badge' ? 'LAF-207' : 'LAF-205' }); S.sheet = null; S.grTried = false; render(); return toast('Rule saved. ' + (GAME[id].slice(-1)[0].st === 'Tested' ? 'Offer it to the bank when ready.' : 'Test it, then offer it to the bank.')); }
+  if (d.cur) { const [id, k] = d.cur.split(':'), p = PROGS.find(x => x.id === id); if (p.cur === k) return;
+    p.hist.unshift(['10 Nov 2026 ' + new Date().toTimeString().slice(0, 5), 'Sara Khalil', 'Feature flags', 'Reward currency', CUR[p.cur][0], CUR[k][0], 'LAF-11 LIT-89']); p.cur = k; p.upd = '10 Nov 2026';
+    if (k === 'points' && !p.pts) p.pts = { name: p.bank.split(' ')[0] + ' Points', earn: '100 points = AED 1', red: '100 points = AED 1', months: 12, order: 'earliest' };
+    render(); return toast('Reward currency set to ' + CUR[k][0] + '. No code change is needed.'); }
+  if (d.mod) { const [id, k] = d.mod.split(':'), p = PROGS.find(x => x.id === id), on = !p.mods[k];
+    p.hist.unshift(['10 Nov 2026 ' + new Date().toTimeString().slice(0, 5), 'Sara Khalil', 'Feature flag ' + MODS.find(m => m[0] === k)[1], 'State', on ? 'Off' : 'On', on ? 'On' : 'Off', 'LAF-11 LIT-89']); p.mods[k] = on ? 1 : 0; p.upd = '10 Nov 2026'; render(); return toast(MODS.find(m => m[0] === k)[1] + ' turned ' + (on ? 'on' : 'off') + '. No code change is needed.'); }
+});
+document.addEventListener('change', e => {
+  const t = e.target, d = t.dataset;
+  if (t.id === 'fregion') { S.fregion = t.value; return render(); }
+  if (t.id === 'fmerch') { S.fmerch = t.value; return render(); }
+  if (t.id === 'ftid') { S.ftid = t.value; return render(); }
+  if (d.ten) { const n = d.ten; S.rv.tenants = t.checked ? BANKS.map(b => b.name).filter(x => x === n || S.rv.tenants.includes(x)) : S.rv.tenants.filter(x => x !== n); S.rv.tenant = S.rv.tenants[0] || ''; S.rv.tenErr = false; return render(); }
+  if (d.pick) { const n = d.pick; S.pick = t.checked ? S.pick.concat(n) : S.pick.filter(x => x !== n); return render(); }
+  if (t.id === 'ofEx') S.rv.ex = t.value;
+  if (t.id === 'ofRestr') S.rv.restr = t.value;
+  if (t.id === 'ofsrc') { S.of.src = t.value; return render(); }
+  if (t.id === 'afnet') { S.af.net = t.value; return render(); }
+  if (t.id === 'afbank') { S.af.bank = t.value; return render(); }
+  if (t.id === 'apnet') { S.ap.net = t.value; S.ap.page = 1; return render(); }
+  if (t.id === 'apbank') { S.ap.bank = t.value; S.ap.page = 1; return render(); }
+  if (t.id === 'apst') { S.ap.st = t.value; S.ap.page = 1; return render(); }
+  if (t.id === 'risup') { S.ri.sup = t.value; S.ri.page = 1; return render(); }
+  if (t.id === 'rimkt') { S.ri.mkt = t.value; S.ri.page = 1; return render(); }
+  if (t.id === 'ricat') { S.ri.cat = t.value; S.ri.page = 1; return render(); }
+  if (t.id === 'rcsup') { S.rc.sup = t.value; S.rc.page = 1; return render(); }
+  if (t.id === 'rcmkt') { S.rc.mkt = t.value; S.rc.page = 1; return render(); }
+  if (t.id === 'rccat') { S.rc.cat = t.value; S.rc.page = 1; return render(); }
+  if (t.id === 'rcinc') { S.rc.inc = t.value; S.rc.page = 1; return render(); }
+  if (t.id === 'rosup') { S.ro.sup = t.value; S.ro.page = 1; return render(); }
+  if (t.id === 'rost') { S.ro.st = t.value; S.ro.page = 1; return render(); }
+  if (d.afpick) { const k = d.afpick; S.afPick = t.checked ? S.afPick.concat(k) : S.afPick.filter(x => x !== k); return render(); }
+  if (t.id === 'evprog') { S.ev.prog = t.value; S.ev.page = 1; return render(); }
+  if (t.id === 'evev') { S.ev.ev = t.value; S.ev.page = 1; return render(); }
+  if (t.id === 'evst') { S.ev.st = t.value; S.ev.page = 1; return render(); }
+  if (t.id === 'evfrom') { S.ev.from = t.value; S.ev.page = 1; return render(); }
+  if (t.id === 'evto') { S.ev.to = t.value; S.ev.page = 1; return render(); }
+  if (t.id === 'oftype') { S.of.type = t.value; return render(); }
+  if (t.id === 'ofbank') { S.of.bank = t.value; return render(); }
+  if (t.id === 'ofsort') { S.of.sort = t.value; return render(); }
+  if (d.tg) { const [k, i, f] = d.tg.split(':'), r = S.rv.tg[k][+i]; r[f] = t.value; if (f === 'subj') r.val = (t.value === 'merchant' ? TG_MERCH : TG_CAT)[0]; if (f === 'op' && t.value === 'between' && !r.v2) r.v2 = String((+r.v1 || 0) * 2 || 10); S.rv.tested = false; return render(); }
+  if (d.tgcard) { const c = d.tgcard, T = S.rv.tg; T.cards = t.checked ? TG_CARDS.filter(x => x === c || T.cards.includes(x)) : T.cards.filter(x => x !== c); S.rv.tested = false; return render(); }
+  if (t.id && t.id.startsWith('gr') && S.sheet && S.sheet.startsWith('grule:')) { const k = t.id.slice(2).replace(/^./, c => c.toLowerCase()); S.gr[k] = t.value; S.grErr = ''; if (k === 'type') S.gr.rtype = t.value === 'Badge' ? 'Badge' : 'Points'; S.grTried = false; return render(); }
+  if (t.id === 'prioEff') S.rv.prioEff = t.value;
+  if (t.id === 'rpOff') S.reproc.off = t.value;
+  if (t.id === 'rpDate') S.reproc.date = t.value;
+  if (d.ex) { SOURCED[+d.ex].ex = t.value; return toast('Exclusivity marked: ' + t.value + '.'); }
+  if (d.urole) { ADMINS[+d.urole][1] = t.value; return toast('Role changed to ' + t.value + '.'); }
+});
+document.addEventListener('input', e => {
+  const id = e.target.id;
+  if (id === 'ofq') S.of.q = e.target.value;
+  else if (id === 'evq') { S.ev.q = e.target.value; S.ev.page = 1; }
+  else if (id === 'afq') S.af.q = e.target.value;
+  else if (id === 'apq') { S.ap.q = e.target.value; S.ap.page = 1; }
+  else if (id === 'riq') { S.ri.q = e.target.value; S.ri.page = 1; }
+  else if (id === 'rcq') { S.rc.q = e.target.value; S.rc.page = 1; }
+  else if (id === 'roq') { S.ro.q = e.target.value; S.ro.page = 1; }
+  else return;
+  render(); const el = $('#' + id); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.sheet) { S.sheet = null; render(); } });
+window.addEventListener('hashchange', render);
+window.PA = { role: () => { /* Mastercard role removed from the prototype */ }, S, render, go };
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render); else render();
+})();
+</script>
+<!-- RFP-TIPS -->
